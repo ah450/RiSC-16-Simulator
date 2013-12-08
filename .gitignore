@@ -2,6 +2,7 @@
 *.slo
 *.lo
 *.o
+*.dblite
 
 # Compiled Dynamic libraries
 *.so
