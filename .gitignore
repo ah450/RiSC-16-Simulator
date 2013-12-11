@@ -1,3 +1,6 @@
+#Executables
+RiSC-16-dbg
+
 # Compiled Object files
 *.slo
 *.lo
@@ -12,3 +15,8 @@
 *.lai
 *.la
 *.a
+
+
+#Editors
+*.sublime-project
+*.sublime-workspace
