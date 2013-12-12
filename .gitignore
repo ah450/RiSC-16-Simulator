@@ -20,3 +20,4 @@ RiSC-16-dbg
 #Editors
 *.sublime-project
 *.sublime-workspace
+project.*
