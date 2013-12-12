@@ -106,3 +106,71 @@ TEST_CASE("Memory instruction parsing", "[regex]") {
     
 }
 
+
+TEST_CASE("Directive instruction parsing", "[regex]") {
+    SECTION("ORIGIN") {
+        std::string testdec("#ORIGIN   \t 200");
+        boost::smatch result;
+        REQUIRE(boost::regex_match(testdec, result, ass::regex::originDirect));
+        REQUIRE(result[1] == "ORIGIN");
+        REQUIRE(result[2] == "200");
+        std::string testhex("#ORIGIN 0xAF");
+        REQUIRE(boost::regex_match(testhex, result, ass::regex::originDirect));
+        REQUIRE(result[1] == "ORIGIN");
+        REQUIRE(result[2] == "0xAF");
+        std::string testBinary("#ORIGIN 0b1101");
+        REQUIRE(boost::regex_match(testBinary, result, ass::regex::originDirect));
+        REQUIRE(result[1] == "ORIGIN");
+        REQUIRE(result[2] == "0b1101");        
+    }
+
+    SECTION("EXPORT") {
+        boost::smatch result;
+        SECTION("1 label") {
+            std::string test("#EXPORT hello");
+            REQUIRE(boost::regex_match(test, result, ass::regex::exportDirect));
+            REQUIRE(result[1] == "EXPORT");
+            REQUIRE(result[2] == "hello");
+        }
+
+        SECTION("multi label") {
+            std::string test("#EXPORT hello,hell1, main, lol\t\t,\t label");
+            REQUIRE(boost::regex_match(test, result, ass::regex::exportDirect));
+            REQUIRE(result[1] == "EXPORT");
+            REQUIRE(result[2] == "hello,hell1, main, lol\t\t,\t label");            
+        }
+
+        SECTION("invalid multi label") {
+            std::string test("#EXPORT hello hell1, main, lol\t\t,\t label");
+            REQUIRE_FALSE(boost::regex_match(test, result, ass::regex::exportDirect));
+        }
+    }
+
+    SECTION("GLOBAL") {
+        boost::smatch result;
+        SECTION("1 label") {
+            std::string test("#GLOBAL hello");
+            REQUIRE(boost::regex_match(test, result, ass::regex::globalDirect));
+            REQUIRE(result[1] == "GLOBAL");
+            REQUIRE(result[2] == "hello");
+        }
+
+        SECTION("multi label") {
+            std::string test("#GLOBAL hello,hell1, main, lol\t\t,\t label");
+            REQUIRE(boost::regex_match(test, result, ass::regex::globalDirect));
+            REQUIRE(result[1] == "GLOBAL");
+            REQUIRE(result[2] == "hello,hell1, main, lol\t\t,\t label");            
+        }
+
+        SECTION("invalid multi label") {
+            std::string test("#GLOBAL hello hell1, main, lol\t\t,\t label");
+            REQUIRE_FALSE(boost::regex_match(test, result, ass::regex::globalDirect));
+        }
+    }
+
+}
+
+TEST_CASE("Conditional branch instruction parsing", "[regex]") {
+    
+
+}

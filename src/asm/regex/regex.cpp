@@ -4,11 +4,15 @@ using namespace ass;
 /**
  * @brief matches base 10, 16 and 2 numbers.
  */
-static std::string number(R"((0x([0-9]|[a-f]|[A-F])+|0b[0-1]+|[0-9]+))");
+static const std::string number(R"((0x([0-9]|[a-f]|[A-F])+|0b[0-1]+|[0-9]+))");
 /**
  * @brief matches labels
  */
-static std::string label(R"([a-z][a-z0-9]*)");
+static const std::string label(R"([a-z][a-z0-9]*)");
+/**
+ * @brief matches one or more label.
+ */
+static const std::string labelList(R"((\s*)" + label + R"(\s*,)*\s*)" + label);
 
 
 
@@ -32,4 +36,7 @@ const boost::regex regex::arithmTernary(R"(\s*(ADD|SUB|MUL|DIV|AND|OR|NAND|NOR)\
                 std::string(R"((R[0-7])\s*,\s*(R[0-7])\s*,\s*((R[0-7])|)") + number + R"()\s*)");
 const boost::regex regex::arithmBinary(R"(\s*(NOT|CMP)\s*(R[0-7])\s*,\s*)"
                     + std::string(R"(((R[0-7])|)") + number + R"()\s*)");
-
+const boost::regex regex::originDirect(std::string(R"(\s*#(ORIGIN)\s*()") + number + R"()\s*)" );
+const boost::regex regex::exportDirect(R"(\s*#(EXPORT)\s*()" + labelList + R"()\s*)");
+const boost::regex regex::globalDirect(R"(\s*#(GLOBAL)\s*()" + labelList + R"()\s*)");
+const boost::regex regex::labelReg(R"(\s*()" + label + R"()\s*:\s*)");

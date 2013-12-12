@@ -18,6 +18,10 @@ extern const boost::regex jalLabel;
 extern const boost::regex ret;
 extern const boost::regex arithmTernary;
 extern const boost::regex arithmBinary;
+extern const boost::regex originDirect;
+extern const boost::regex exportDirect;
+extern const boost::regex globalDirect;
+extern const boost::regex labelReg;
 
 }
 }
