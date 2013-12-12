@@ -13,9 +13,9 @@ public:
     void cache_delay(int delay_in_cycles);
 
     //member functions
-    virtual short get_data(int address);
-    virtual void write_data(short data);
-    virtual bool fill_cache(memory_block data);
+    virtual unsigned short get_data(unsigned short address);
+    virtual void write_data(unsigned short address, unsigned short data);
+    virtual bool write_block(memory_block data);
 
     //member variables
 private:

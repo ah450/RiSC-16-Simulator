@@ -14,9 +14,9 @@ public:
 class i_memory
 {
 public:
-    virtual short get_data(int address) = 0;
-    virtual void write_data(short data) = 0;
-    virtual bool fill_cache(memory_block data) = 0;
+    virtual unsigned short get_data(unsigned short address);
+    virtual void write_data(unsigned short address, unsigned short data);
+    virtual bool write_block(memory_block data);
     virtual ~i_memory();
 };
 
