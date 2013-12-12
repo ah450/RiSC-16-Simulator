@@ -1,5 +1,7 @@
 #Executables
 RiSC-16-dbg
+RiSC-16
+RiSC-16-profile
 
 # Compiled Object files
 *.slo
