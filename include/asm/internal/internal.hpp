@@ -25,6 +25,7 @@ enum class SymType {INST};
 
 struct Sym {
     bool defined;
+    bool global;
     addr_t address;
     SymType type;
     std::string name;

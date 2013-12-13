@@ -98,7 +98,7 @@ bool ass::internal::tryExport(file_path_pair_t &file, AssemblingStatus &state, s
     auto originalGet = file.first->tellg();
 
     std::string line;
-    std::getline((*file.first), line);
+    std::getline(*file.first, line);
     boost::trim(line);
     boost::smatch result;
     if(boost::regex_match(line, result, ass::regex::exportDirect)) {
@@ -113,14 +113,14 @@ bool ass::internal::tryExport(file_path_pair_t &file, AssemblingStatus &state, s
             if(state.symbols.count(l) == 0) {
                 // insert new symbol
                 Sym s;
-                s.defined = false;
-                s.name = l;
-                s.file = file.second;
-                s.lineNum = lineNum;
+                s.defined = false; // to be set to true by actual definition
+                s.name = l; // name is global not hashed
+                s.global = true;
                 state.symbols[l] = s;
                 state.currentFileState.exportedSyms.push_back(s);
             }else {
                 // trying to export an already defined value
+                // if it was just imported in another file defined will be false
                 if(state.symbols[l].defined) {
                     state.error = true;
                     (*state.logger) << "Error: Tying to export an already exported label : " << l << 
@@ -128,6 +128,12 @@ bool ass::internal::tryExport(file_path_pair_t &file, AssemblingStatus &state, s
                             << "First defined in" << state.symbols[l].file.generic_string() 
                             << "@" << std::to_string(state.symbols[l].lineNum)
                             << "\n";
+                }else {
+                    // was just imported by another file
+                    Sym &s = state.symbols[l];
+                    s.name = l; // global name
+                    s.global = true;
+                    state.currentFileState.exportedSyms.push_back(s);
                 }
             }
         }
@@ -139,6 +145,43 @@ bool ass::internal::tryExport(file_path_pair_t &file, AssemblingStatus &state, s
         return false;
     }
 
+
+}
+
+bool ass::internal::tryGlobal(file_path_pair_t &file, AssemblingStatus &state, std::size_t &lineNum) {
+    auto originalGet = file.first->tellg();
+    std::string line;
+    std::getline(*file.first, line);
+    boost::trim(line);
+    boost::smatch result;
+    if(boost::regex_match(line, result, ass::regex::globalDirect)) {
+        std::string labelList = result[2];
+        std::string noWhiteSpaceList;
+        boost::regex_replace(std::back_inserter(noWhiteSpaceList), labelList.begin(), labelList.end(), boost::regex(R"(\s*)"), "");
+        std::vector<std::string> labelVect = tokenizeLabels(noWhiteSpaceList);
+
+        for(auto &l : labelVect) {
+              if(state.symbols.count(l) != 0) {
+                // symbol already exists
+                state.currentFileState.importedSyms.push_back(state.symbols[l]);
+              }else {
+                //create new undefined global label
+                Sym s;
+                s.defined = false;
+                s.name = l; // name is global not hashed
+                s.global = true;
+                state.symbols[l] = s;
+                // add label to imported syms list.
+                state.currentFileState.importedSyms.push_back(s);
+              }
+        }
+        lineNum++;
+        return true;
+    }else {
+        // not a gloal directive
+        file.first->seekg(originalGet);
+        return false;
+    }
 
 }
 
