@@ -13,7 +13,7 @@ namespace ass { namespace regex {
 extern const boost::regex loadStore;
 
 /**
- * @brief JMP rd, number|label
+ * @brief JMP rd, number
  */
 extern const boost::regex jmp;
 

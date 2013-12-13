@@ -178,8 +178,8 @@ TEST_CASE("Conditional branch instruction parsing", "[regex]") {
         REQUIRE(boost::regex_match(test1, result, ass::regex::branch));
         REQUIRE(result[1] == "BEQ");
         REQUIRE(result[2] == "R2");
-        REQUIRE(RESULT[3] == "R1");
-        REQUIRE(RESULT[4] == "R3");
+        REQUIRE(result[3] == "R1");
+        REQUIRE(result[4] == "R3");
 
         std::string test2("BEQ, R2, R1, R22");
         REQUIRE_FALSE(boost::regex_match(test2, result, ass::regex::branch));        
@@ -191,8 +191,8 @@ TEST_CASE("Conditional branch instruction parsing", "[regex]") {
         REQUIRE(boost::regex_match(test1, result, ass::regex::branch));
         REQUIRE(result[1] == "BNE");
         REQUIRE(result[2] == "R2");
-        REQUIRE(RESULT[3] == "R1");
-        REQUIRE(RESULT[4] == "R3");
+        REQUIRE(result[3] == "R1");
+        REQUIRE(result[4] == "R3");
 
         std::string test2("BNE R2, R1");
         REQUIRE_FALSE(boost::regex_match(test2, result, ass::regex::branch));  
@@ -204,8 +204,8 @@ TEST_CASE("Conditional branch instruction parsing", "[regex]") {
         REQUIRE(boost::regex_match(test1, result, ass::regex::branch));
         REQUIRE(result[1] == "BGT");
         REQUIRE(result[2] == "R2");
-        REQUIRE(RESULT[3] == "R1");
-        REQUIRE(RESULT[4] == "R3");
+        REQUIRE(result[3] == "R1");
+        REQUIRE(result[4] == "R3");
 
         std::string test2("BGT");
         REQUIRE_FALSE(boost::regex_match(test2, result, ass::regex::branch));  
@@ -218,8 +218,8 @@ TEST_CASE("Conditional branch instruction parsing", "[regex]") {
         REQUIRE(boost::regex_match(test1, result, ass::regex::branch));
         REQUIRE(result[1] == "BLT");
         REQUIRE(result[2] == "R2");
-        REQUIRE(RESULT[3] == "R1");
-        REQUIRE(RESULT[4] == "R3");
+        REQUIRE(result[3] == "R1");
+        REQUIRE(result[4] == "R3");
 
         std::string test2("BLT, R2, R1, R0");
         REQUIRE_FALSE(boost::regex_match(test2, result, ass::regex::branch));  
@@ -231,8 +231,8 @@ TEST_CASE("Conditional branch instruction parsing", "[regex]") {
         REQUIRE(boost::regex_match(test1, result, ass::regex::branch));
         REQUIRE(result[1] == "BGE");
         REQUIRE(result[2] == "R2");
-        REQUIRE(RESULT[3] == "R1");
-        REQUIRE(RESULT[4] == "R3");
+        REQUIRE(result[3] == "R1");
+        REQUIRE(result[4] == "R3");
 
         std::string test2("BGE");
         REQUIRE_FALSE(boost::regex_match(test2, result, ass::regex::branch));  
@@ -244,8 +244,8 @@ TEST_CASE("Conditional branch instruction parsing", "[regex]") {
         REQUIRE(boost::regex_match(test1, result, ass::regex::branch));
         REQUIRE(result[1] == "BLE");
         REQUIRE(result[2] == "R2");
-        REQUIRE(RESULT[3] == "R1");
-        REQUIRE(RESULT[4] == "R3");
+        REQUIRE(result[3] == "R1");
+        REQUIRE(result[4] == "R3");
 
         std::string test2("BLE");
         REQUIRE_FALSE(boost::regex_match(test2, result, ass::regex::branch));  
@@ -314,6 +314,7 @@ TEST_CASE("Logical instruction parsing", "[regex]") {
 }
 
 TEST_CASE("Arithmetic instruction parsing", "[regex]") {
+    boost::smatch result;
     SECTION("ADD") {
         std::string test("ADD R1, R2, R3");
         REQUIRE(boost::regex_match(test, result, ass::regex::arithmReg));
@@ -364,11 +365,16 @@ TEST_CASE("Arithmetic instruction parsing", "[regex]") {
     }
 
       SECTION("LI") {
-        std::string test("ADDI R1, data");
-        REQUIRE(boost::regex_match(test, result, ass::regex::arithmImm));
-        REQUIRE(result[1] == "ADDI");
+        std::string test("LI R1, data");
+        REQUIRE(boost::regex_match(test, result, ass::regex::loadImm));
+        REQUIRE(result[1] == "LI");
         REQUIRE(result[2] == "R1");
         REQUIRE(result[3] == "data");
+        std::string test2("LI R1, 22");
+        REQUIRE(boost::regex_match(test2, result, ass::regex::loadImm));
+        REQUIRE(result[1] == "LI");
+        REQUIRE(result[2] == "R1");
+        REQUIRE(result[3] == "22");
 
     }
 }
@@ -385,29 +391,54 @@ TEST_CASE("Uncoditional branch instruction parsing", "[regex]") {
     SECTION("JMP") {
 
         SECTION("NUMBER") {
-
-        }
-
-        SECTION("LABEL") {
-
+            std::string test("JMP R5, 22");
+            REQUIRE(boost::regex_match(test, result, ass::regex::jmp));
+            REQUIRE(result[1] == "JMP");
+            REQUIRE(result[2] == "R5");
+            REQUIRE(result[3] == "22");
         }
 
     }
 
     SECTION("JAL") {
         SECTION("JAL REG") {
+            std::string test("JAL R5, R2");
+            REQUIRE(boost::regex_match(test, result, ass::regex::jalReg));
+            REQUIRE(result[1] == "JAL");
+            REQUIRE(result[2] == "R5");
+            REQUIRE(result[3] == "R2");
+
 
         }
 
         SECTION("JAL IMM") {
 
             SECTION("NUMBER") {
+                std::string test("JAL R5, 22");
+                REQUIRE(boost::regex_match(test, result, ass::regex::jalImm));
+                REQUIRE(result[1] == "JAL");
+                REQUIRE(result[2] == "R5");
+                REQUIRE(result[3] == "22");
 
             }
 
             SECTION("LABEL") {
-                
+                std::string test("JAL R5, label");
+                REQUIRE(boost::regex_match(test, result, ass::regex::jalImm));
+                REQUIRE(result[1] == "JAL");
+                REQUIRE(result[2] == "R5");
+                REQUIRE(result[3] == "label");
+
             }
         }
     }
+}
+
+
+TEST_CASE("Label Test", "[regex]") {
+    boost::smatch result;
+    std::string test("hello:");
+    REQUIRE(boost::regex_match(test, result, ass::regex::labelReg));
+    REQUIRE(result[1] == "hello");  
+
 }
