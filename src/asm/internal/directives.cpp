@@ -2,7 +2,7 @@
 using namespace ass::internal;
 
 
-void ass::internal::getOrigin(const ifvector_t &files, AssemblingStatus &state) {
+void ass::internal::setOrigin(const ifvector_t &files, AssemblingStatus &state) {
 
     using namespace ass;
     boost::smatch result;
@@ -70,6 +70,12 @@ void ass::internal::getOrigin(const ifvector_t &files, AssemblingStatus &state) 
             // no origin directive. reset get pointer to beggining of file
             pair.first->seekg(originalGet);
         }
+    } // end for each
+
+    //default value
+    if(!state.originDefined) {
+        state.originDefined = true;
+        state.origin = DEFAULT_ORIGIN;
     }
 
 
