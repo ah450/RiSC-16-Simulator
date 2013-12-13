@@ -11,7 +11,7 @@ def make_package(env, tag, package) :
 
 paths =  ' -Iinclude '
 #add libs here
-libs = Split( ' -lboost_regex ' )
+libs = Split( ' -lboost_regex -lboost_filesystem -lboost_system' )
 
 #debug options
 debug = Environment(ENV = {'PATH' : os.environ['PATH']})
