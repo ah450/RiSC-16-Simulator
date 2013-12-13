@@ -2,6 +2,7 @@
 #define cache_H
 #include "i_memory.h"
 
+
 class cache : public i_memory
 {
 public:
@@ -10,6 +11,7 @@ public:
     void on_cache_hit(HIT_POLICY write_hit);
     void on_cache_miss(MISS_POLICY write_miss);
     void cache_delay(int delay_in_cycles);
+    void run();
 
     //member functions
     virtual unsigned short get_data(unsigned short address, int &delay);
@@ -20,15 +22,21 @@ public:
 
     //member variables
 private:
-    unsigned int cache_size;
-    unsigned int line_size;
+    unsigned int cache_size;// in bytes
+    unsigned int line_size;// in bytes
     unsigned int associativity;
     unsigned int delay_in_cycles;
     unsigned int cache_accesses;
     unsigned int cache_misses;
+    unsigned int number_of_lines;
+    unsigned bool running;
+    std::vector< std::vector<unsigned short> > memory_array;
     HIT_POLICY write_hit;
     MISS_POLICY write_miss;
     i_memory lower_memory;
+
+    //internal functions
+    bool validate();
 };
 
 #endif // cache_H
