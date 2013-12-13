@@ -3,6 +3,7 @@ RiSC-16-dbg
 RiSC-16
 RiSC-16-profile
 
+
 # Compiled Object files
 *.slo
 *.lo
@@ -22,3 +23,5 @@ RiSC-16-profile
 #Editors
 *.sublime-project
 *.sublime-workspace
+project.*
+
