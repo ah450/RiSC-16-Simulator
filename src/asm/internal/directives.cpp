@@ -1,5 +1,16 @@
 #include "asm/internal/internal.hpp"
+#include <boost/tokenizer.hpp>
+#include <iterator>
+#include <string>
 using namespace ass::internal;
+
+const addr_t ass::internal::DEFAULT_ORIGIN = 0;
+
+inline std::vector<std::string> tokenizeLabels(const std::string &list) {
+    boost::char_separator<char> sep(",");
+    boost::tokenizer<boost::char_separator<char>> tok(list, sep);
+    return std::vector<std::string>(tok.begin(), tok.end());
+}
 
 
 void ass::internal::setOrigin(const ifvector_t &files, AssemblingStatus &state) {
@@ -18,7 +29,7 @@ void ass::internal::setOrigin(const ifvector_t &files, AssemblingStatus &state) 
             if(state.originDefined) {
                 // origin can only be defined once per program
                 (*state.logger) << "Error : origin directory already redefinition encountered while processing file: "
-                    << pair.second.generic_string();
+                    << pair.second.generic_string() << "\n";
                 state.error = true;
             }else {
                 // first time origin directive encountered
@@ -43,7 +54,7 @@ void ass::internal::setOrigin(const ifvector_t &files, AssemblingStatus &state) 
                 if(value < 0) {
                     //negative origin
                     (*state.logger) << "Error : Invalid origin directive - address can not be negative - in file: "
-                                    << pair.second.generic_string();
+                                    << pair.second.generic_string() << "\n";
                     state.error = true;
 
                 }else if((value & 0x0000) != 0) {
@@ -57,11 +68,11 @@ void ass::internal::setOrigin(const ifvector_t &files, AssemblingStatus &state) 
 
                }catch (std::invalid_argument &ia) {
                     (*state.logger) << "Error : Could not parse paramater of origin directive in file: "
-                                    << pair.second.generic_string();
+                                    << pair.second.generic_string() << "\n";
                     state.error = true;
                }catch (std::out_of_range &e) {
                     (*state.logger) << "Error : Origin paramater to large for 16 bits in file: "
-                                    << pair.second.generic_string();
+                                    << pair.second.generic_string() << "\n";
                     state.error = true;
                } 
 
@@ -77,6 +88,57 @@ void ass::internal::setOrigin(const ifvector_t &files, AssemblingStatus &state) 
         state.originDefined = true;
         state.origin = DEFAULT_ORIGIN;
     }
+ 
+
+}
+
+
+bool ass::internal::tryExport(file_path_pair_t &file, AssemblingStatus &state, std::size_t &lineNum) {
+
+    auto originalGet = file.first->tellg();
+
+    std::string line;
+    std::getline((*file.first), line);
+    boost::trim(line);
+    boost::smatch result;
+    if(boost::regex_match(line, result, ass::regex::exportDirect)) {
+        // is an export directive
+        // remove spaces in label list
+        std::string labelList = result[2];
+        std::string noWhiteSpaceList;
+        boost::regex_replace(std::back_inserter(noWhiteSpaceList), labelList.begin(), labelList.end(), boost::regex(R"(\s*)"), "");
+        std::vector<std::string> labelVector = tokenizeLabels(noWhiteSpaceList);
+        for(auto & l : labelVector) {
+            // handle each label
+            if(state.symbols.count(l) == 0) {
+                // insert new symbol
+                Sym s;
+                s.defined = false;
+                s.name = l;
+                s.file = file.second;
+                s.lineNum = lineNum;
+                state.symbols[l] = s;
+                state.currentFileState.exportedSyms.push_back(s);
+            }else {
+                // trying to export an already defined value
+                if(state.symbols[l].defined) {
+                    state.error = true;
+                    (*state.logger) << "Error: Tying to export an already exported label : " << l << 
+                        " " << file.second.generic_string() << "@" << std::to_string(lineNum) << " "
+                            << "First defined in" << state.symbols[l].file.generic_string() 
+                            << "@" << std::to_string(state.symbols[l].lineNum)
+                            << "\n";
+                }
+            }
+        }
+        lineNum++;
+        return true;
+    }else {
+        // not an exportDirective
+        file.first->seekg(originalGet);
+        return false;
+    }
 
 
 }
+

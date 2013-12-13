@@ -20,7 +20,7 @@ bool ass::assemble(const std::vector<bfs::path> &sources, const bfs::path &out, 
     }
 
     AssemblingStatus state(l);
-    getOrigin(files, state);
+    setOrigin(files, state);
     return !state.error;
 
 }

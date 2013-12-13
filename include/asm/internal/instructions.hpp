@@ -1,7 +1,7 @@
 #pragma once
 #include <unordered_map>
 #include <memory>
-namespace ass { namespace inst {
+namespace ass { namespace internal {
 enum class InstType {LW, SW, ADDI, JMP, LI, JALR, JALI, ADD, SUB, MUL,
                     DIV, NAND, AND, OR, XOR, NOT, RET, BEQ, BNE, BGT, BGE, BLT, BLE};
 

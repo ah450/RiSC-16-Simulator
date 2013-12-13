@@ -10,6 +10,7 @@
 #include <utility>
 #include <string>
 #include <memory>
+#include <list>
 
 namespace ass { namespace internal {
 
@@ -26,8 +27,15 @@ struct Sym {
     bool defined;
     addr_t address;
     SymType type;
+    std::string name;
+    bfs::path file;
+    std::size_t lineNum;
 };
 
+struct FileState {
+    std::list<Sym> importedSyms;
+    std::list<Sym> exportedSyms;
+};
 
 
 struct AssemblingStatus {
@@ -35,15 +43,17 @@ struct AssemblingStatus {
     pc_t pc;
     addr_t origin;
     std::unordered_map<std::string, Sym> symbols;
-    std::unordered_multimap<Sym, std::shared_ptr<Instruction>> incompleteInstructions;
+    std::unordered_multimap<std::string, std::shared_ptr<Instruction>> incompleteInstructions;
     std::vector<std::shared_ptr<Instruction>> instructions;
     ILogger * logger;
-    AssemblingStatus(ILogger * logger) : error(false), originDefined(false), pc(0), symbols(), logger(logger){} 
+    FileState currentFileState;
+    AssemblingStatus(ILogger * logger) : error(false), originDefined(false), pc(0), symbols(), logger(logger){}
+    void resetCurrentFile(){currentFileState = FileState();} 
 
 
 };
 
-extern const addr_t DEFAULT_ORIGIN = 0;
+extern const addr_t DEFAULT_ORIGIN;
 
 
 /**
@@ -57,7 +67,7 @@ extern const addr_t DEFAULT_ORIGIN = 0;
 void setOrigin(const ifvector_t &files, AssemblingStatus &state);
 /**
  * @brief Attempts to parse an export directive line.
- * 
+ * @details  rewinds get pointer if not successful
  * @param file a pair of a file and a path to read from
  * @param state Current assembling state
  * @param lineNum current line number, incremented if successful.
