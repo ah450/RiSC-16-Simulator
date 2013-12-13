@@ -1,4 +1,4 @@
-#include "asm/regex.hpp"
+#include "asm/internal/regex.hpp"
 #include <string>
 using namespace ass;
 /**

@@ -1,5 +1,5 @@
 #pragma once
-#include "asm/regex.hpp"
+#include "asm/internal/regex.hpp"
 #include <string>
 
 TEST_CASE("Memory instruction parsing", "[regex]") {
