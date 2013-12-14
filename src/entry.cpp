@@ -3,5 +3,6 @@
  * Eventually includes will be removed and main function will be written here.
  */
 #define CATCH_CONFIG_MAIN 
-#include "tests/catch.hpp"
-#include "tests/asm_tests.hpp"
+#include "../include/tests/catch.hpp"
+#include "../include/tests/asm_tests.hpp"
+#include "../include/tests/cache_test.hpp"

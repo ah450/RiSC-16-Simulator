@@ -1,7 +1,8 @@
 #ifndef cache_H
 #define cache_H
 #include "i_memory.h"
-
+#include <memory>
+#include <iostream>
 
 class cache : public i_memory
 {
@@ -11,7 +12,7 @@ public:
     void on_cache_hit(HIT_POLICY write_hit);
     void on_cache_miss(MISS_POLICY write_miss);
     void cache_delay(int delay_in_cycles);
-    void run();
+    bool run();
 
     //member functions
     virtual unsigned short get_data(unsigned short address, int &delay);
@@ -29,14 +30,20 @@ private:
     unsigned int cache_accesses;
     unsigned int cache_misses;
     unsigned int number_of_lines;
-    unsigned bool running;
+    unsigned int index_bits;
+    unsigned int tag_bits;
+    unsigned int offset_bits;
+    bool running;
     std::vector< std::vector<unsigned short> > memory_array;
     HIT_POLICY write_hit;
     MISS_POLICY write_miss;
-    i_memory lower_memory;
+    std::weak_ptr<i_memory> lower_memory;
 
     //internal functions
     bool validate();
+    unsigned short get_offset(unsigned short address);
+    unsigned short get_index(unsigned short address);
+    unsigned short get_tag(unsigned short address);
 };
 
 #endif // cache_H
