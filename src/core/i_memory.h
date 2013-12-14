@@ -19,7 +19,6 @@ public:
                             unsigned short data, int &delay)= 0;
     virtual memory_block fetch_block(unsigned short address, int &delay)= 0;
     virtual void write_block(memory_block block, int &delay)= 0;
-    virtual ~i_memory()= 0;
 };
 
 #endif // I_MEMORY_H

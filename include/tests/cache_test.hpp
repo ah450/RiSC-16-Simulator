@@ -12,7 +12,6 @@ TEST_CASE("caches initialized correctly","[cache]"){
     l_cache.on_cache_hit(HIT_POLICY::WRITE_BACK);
     l_cache.on_cache_miss(MISS_POLICY::WRITE_ALLOCATE);
     SECTION("correct initalization"){
-
         REQUIRE(l_cache.run());
     }
     SECTION("cache size not multiple of two"){

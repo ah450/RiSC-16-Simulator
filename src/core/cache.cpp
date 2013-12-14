@@ -3,7 +3,7 @@
 #include <vector>
 #include <iostream>
 
-#define error(x) std::cout<<"ERROR: "<<x<<std::endl; return false;
+#define error(x) {std::cout<<"ERROR: "<<x<<std::endl; return false;}
 #define MINIMU_CACHE_SIZE 2
 #define MAXIMUM_CACHE_SIZE 65536
 #define ADDRESS_SIZE 16
@@ -33,7 +33,8 @@ void cache::cache_delay(int delay_in_cycles){
 }
 
 bool cache::run(){
-    if(!running)
+
+    if(!running )
         if(validate()){
             number_of_lines = cache_size / line_size;
             // initialize multidimensional vector
@@ -55,11 +56,12 @@ bool cache::run(){
 }
 
 bool cache::validate(){
+    std::cout<< "***validating***" <<std::endl;
     if (cache_size < MINIMU_CACHE_SIZE )
         error("small cache size is too small");
     if (cache_size > MAXIMUM_CACHE_SIZE)
         error("cache size is too big");
-    if (log2(cache_size) == floor(log2(cache_size)) )
+    if (log2(cache_size) != floor(log2(cache_size)) )
         error("cache size is not multiple of 2");
 
     if (line_size < MINIMU_CACHE_SIZE )
@@ -72,7 +74,7 @@ bool cache::validate(){
     unsigned int max_associativity = cache_size / line_size;
     if (associativity < 1 )
         error("associativity is too small");
-    if (cache_size > max_associativity)
+    if (associativity > max_associativity)
         error("associativity is too big");
 
     if(delay_in_cycles <1)
@@ -87,10 +89,29 @@ ushort cache::get_data(ushort address, int &delay){
     ushort index = get_index(address);
     ushort tag = get_tag(address);
     //direct mapped
-    std::vector line<ushort> = memory_array[index];
+    std::vector<ushort>  line= memory_array[index];
     ushort line_tag = line[(line_size/2)];
     if (tag == line_tag) //cache hit
         return line[offset/2];
+    return 0;
+}
+
+void cache::write_data(unsigned short address,
+                       unsigned short data, int &delay){
+
+}
+
+memory_block cache::fetch_block(unsigned short address, int &delay){
+    memory_block block;
+    return block;
+}
+
+void cache::write_block(memory_block block, int &delay){
+
+}
+
+unsigned int cache::get_hit_ratio(){
+    return 0;
 }
 
 ushort cache::get_offset(ushort address){
