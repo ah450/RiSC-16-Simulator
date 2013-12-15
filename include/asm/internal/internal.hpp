@@ -23,6 +23,10 @@ typedef std::pair<std::unique_ptr<bfs::ifstream>, bfs::path> file_path_pair_t;
 typedef std::vector<file_path_pair_t> ifvector_t;
 enum class SymType {INST};
 
+
+inline std::string removeComments(const std::string &line) {
+    return std::string(line.begin(), std::find(line.begin(), line.end(), ';'));
+}
 struct Sym {
     bool defined;
     bool global;
@@ -41,14 +45,13 @@ struct FileState {
 
 struct AssemblingStatus {
     bool error, originDefined;  
-    pc_t pc;
     addr_t origin;
     std::unordered_map<std::string, Sym> symbols;
     std::unordered_multimap<std::string, std::shared_ptr<Instruction>> incompleteInstructions;
     std::vector<std::shared_ptr<Instruction>> instructions;
     ILogger * logger;
     FileState currentFileState;
-    AssemblingStatus(ILogger * logger) : error(false), originDefined(false), pc(0), symbols(), logger(logger){}
+    AssemblingStatus(ILogger * logger) : error(false), originDefined(false),     symbols(), logger(logger){}
     void resetCurrentFile(){currentFileState = FileState();} 
 
 

@@ -22,6 +22,8 @@ inline std::string removeComments(const std::string &orig) {
 }
 
 
+
+
 void ass::internal::setOrigin(const ifvector_t &files, AssemblingStatus &state) {
 
     using namespace ass;
@@ -130,7 +132,7 @@ bool ass::internal::tryExport(file_path_pair_t &file, AssemblingStatus &state, s
                 state.symbols[l] = s;
                 state.currentFileState.exportedSyms.push_back(s);
             }else {
-                // trying to export an already defined value
+                // trying to export an already existing label
                 // if it was just imported in another file defined will be false
                 if(state.symbols[l].defined) {
                     state.error = true;

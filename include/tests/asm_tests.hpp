@@ -292,15 +292,7 @@ TEST_CASE("Logical instruction parsing", "[regex]") {
         REQUIRE(result[4] == "R3");
     }
 
-      SECTION("NAND") {
-        std::string test("NAND R1, R2, R3");
-        REQUIRE(boost::regex_match(test, result, ass::regex::arithmReg));
-        REQUIRE(result[1] == "NAND");
-        REQUIRE(result[2] == "R1");
-        REQUIRE(result[3] == "R2");
-        REQUIRE(result[4] == "R3");
 
-    }
 
        SECTION("XOR") {
         std::string test("XOR R1, R2, R3");
@@ -313,6 +305,15 @@ TEST_CASE("Logical instruction parsing", "[regex]") {
     }
 }
 
+TEST_CASE("Special instructions", "[regex]") {
+    boost::smatch result;
+    SECTION("HALT") {
+        std::string test("\tHALT    \t");
+        REQUIRE(boost::regex_match(test, result, ass::regex::halt));
+        REQUIRE(result[1] == "HALT");
+
+    }
+}
 TEST_CASE("Arithmetic instruction parsing", "[regex]") {
     boost::smatch result;
     SECTION("ADD") {

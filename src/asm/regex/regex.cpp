@@ -40,8 +40,7 @@ const boost::regex regex::branch(R"(\s*(BEQ|BNE|BGT|BLT|BGE|BLE)\s*(R[0-7])\s*,\
 
 const boost::regex regex::arithmReg(R"(\s*(ADD|SUB|MUL|DIV|AND|OR|XOR)\s*)" +
                 std::string(R"((R[0-7])\s*,\s*(R[0-7])\s*,\s*(R[0-7])\s*)" ));
-
-const boost::regex regex::halt("\\s*HALT\\s*");
+const boost::regex regex::halt("\\s*(HALT)\\s*");
 
 
                   

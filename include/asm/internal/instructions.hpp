@@ -3,12 +3,15 @@
 #include <memory>
 namespace ass { namespace internal {
 enum class InstType {LW, SW, ADDI, JMP, LI, JALR, JALI, ADD, SUB, MUL,
-                    DIV, NAND, AND, OR, XOR, NOT, RET, BEQ, BNE, BGT, BGE, BLT, BLE};
+                    DIV, HALT, AND, OR, XOR, NOT, RET, BEQ, BNE, BGT, BGE, BLT, BLE};
 
 
 struct Instruction {
 
-    virtual ~Instruction();
+    std::uint16_t pc;
+    std::uint16_t data;
+    InstType type;
+
 
 };
 
