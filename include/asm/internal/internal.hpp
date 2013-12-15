@@ -23,6 +23,10 @@ typedef std::pair<std::unique_ptr<bfs::ifstream>, bfs::path> file_path_pair_t;
 typedef std::vector<file_path_pair_t> ifvector_t;
 enum class SymType {INST};
 
+
+inline std::string removeComments(const std::string &line) {
+    return std::string(line.begin(), std::find(line.begin(), line.end(), ';'));
+}
 struct Sym {
     bool defined;
     bool global;

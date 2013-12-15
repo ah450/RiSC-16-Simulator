@@ -84,6 +84,8 @@ namespace {
 	}
 	};
 
+	
+
 	std::array<instFunct_t, > instParsers = {{
 		{HaltF()}, {AddF()}, {MulF()}
 	

@@ -8,10 +8,10 @@ enum class InstType {LW, SW, ADDI, JMP, LI, JALR, JALI, ADD, SUB, MUL,
 
 struct Instruction {
 
-    std::uint8_t pc;
-    std::uint8_t data;
+    std::uint16_t pc;
+    std::uint16_t data;
     InstType type;
-    
+
 
 };
 
