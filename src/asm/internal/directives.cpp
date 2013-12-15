@@ -6,10 +6,19 @@ using namespace ass::internal;
 
 const addr_t ass::internal::DEFAULT_ORIGIN = 0;
 
+
+static bool parseLabel(file_path_pair_t &file, AssemblingStatus &state, std::size_t &lineNum);
+static bool parseInstruct(file_path_pair_t &file, AssemblingStatus &state, std::size_t &lineNum);
+
+
 inline std::vector<std::string> tokenizeLabels(const std::string &list) {
     boost::char_separator<char> sep(",");
     boost::tokenizer<boost::char_separator<char>> tok(list, sep);
     return std::vector<std::string>(tok.begin(), tok.end());
+}
+
+inline std::string removeComments(const std::string &orig) {
+    return std::string(orig.begin(),  std::find(orig.begin(), orig.end(), ';'));
 }
 
 
@@ -22,6 +31,7 @@ void ass::internal::setOrigin(const ifvector_t &files, AssemblingStatus &state) 
         std::string line;
         // read line
         std::getline(*(pair.first), line);
+        line = removeComments(line);
         boost::algorithm::trim(line);
         // attemp to match line
         if(boost::regex_match(line, result, regex::originDirect)) {
@@ -99,6 +109,7 @@ bool ass::internal::tryExport(file_path_pair_t &file, AssemblingStatus &state, s
 
     std::string line;
     std::getline(*file.first, line);
+    line = removeComments(line);
     boost::trim(line);
     boost::smatch result;
     if(boost::regex_match(line, result, ass::regex::exportDirect)) {
@@ -131,7 +142,6 @@ bool ass::internal::tryExport(file_path_pair_t &file, AssemblingStatus &state, s
                 }else {
                     // was just imported by another file
                     Sym &s = state.symbols[l];
-                    s.name = l; // global name
                     s.global = true;
                     state.currentFileState.exportedSyms.push_back(s);
                 }
@@ -152,6 +162,7 @@ bool ass::internal::tryGlobal(file_path_pair_t &file, AssemblingStatus &state, s
     auto originalGet = file.first->tellg();
     std::string line;
     std::getline(*file.first, line);
+    line = removeComments(line);
     boost::trim(line);
     boost::smatch result;
     if(boost::regex_match(line, result, ass::regex::globalDirect)) {
@@ -185,3 +196,19 @@ bool ass::internal::tryGlobal(file_path_pair_t &file, AssemblingStatus &state, s
 
 }
 
+
+
+
+bool ass::internal::parseLine(file_path_pair_t &file, AssemblingStatus &state, std::size_t &lineNum) {
+    return parseLabel(file, state, lineNum) || parseInstruct(file, state, lineNum);
+}
+
+
+
+
+static bool parseLabel(file_path_pair_t &file, AssemblingStatus &state, std::size_t &lineNum) {
+    
+}
+static bool parseInstruct(file_path_pair_t &file, AssemblingStatus &state, std::size_t &lineNum) {
+    
+}

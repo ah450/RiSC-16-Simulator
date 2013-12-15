@@ -63,5 +63,10 @@ extern const boost::regex labelReg;
  */
 extern const boost::regex notReg;
 
+/**
+ * @brief HALT
+ */
+const boost::regex regex::halt;
+
 }
 }
