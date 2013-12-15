@@ -66,7 +66,7 @@ extern const boost::regex notReg;
 /**
  * @brief HALT
  */
-const boost::regex regex::halt;
+extern const boost::regex halt;
 
 }
 }
