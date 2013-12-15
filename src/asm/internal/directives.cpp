@@ -13,6 +13,8 @@ inline std::vector<std::string> tokenizeLabels(const std::string &list) {
 }
 
 
+
+
 void ass::internal::setOrigin(const ifvector_t &files, AssemblingStatus &state) {
 
     using namespace ass;
@@ -22,6 +24,7 @@ void ass::internal::setOrigin(const ifvector_t &files, AssemblingStatus &state) 
         std::string line;
         // read line
         std::getline(*(pair.first), line);
+        line = removeComments(line);
         boost::algorithm::trim(line);
         // attemp to match line
         if(boost::regex_match(line, result, regex::originDirect)) {
@@ -99,6 +102,7 @@ bool ass::internal::tryExport(file_path_pair_t &file, AssemblingStatus &state, s
 
     std::string line;
     std::getline(*file.first, line);
+    line = removeComments(line);
     boost::trim(line);
     boost::smatch result;
     if(boost::regex_match(line, result, ass::regex::exportDirect)) {
@@ -119,7 +123,7 @@ bool ass::internal::tryExport(file_path_pair_t &file, AssemblingStatus &state, s
                 state.symbols[l] = s;
                 state.currentFileState.exportedSyms.push_back(s);
             }else {
-                // trying to export an already defined value
+                // trying to export an already existing label
                 // if it was just imported in another file defined will be false
                 if(state.symbols[l].defined) {
                     state.error = true;

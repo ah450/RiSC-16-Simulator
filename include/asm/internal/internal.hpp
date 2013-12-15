@@ -5,6 +5,7 @@
 #include <boost/algorithm/string.hpp>
 #include <unordered_map>
 #include <algorithm>
+#include <stdexcept>
 #include <iterator>
 #include <cstdint>
 #include <utility>
@@ -21,7 +22,7 @@ typedef std::uint16_t addr_t;
 typedef std::uint16_t pc_t;
 typedef std::pair<std::unique_ptr<bfs::ifstream>, bfs::path> file_path_pair_t;
 typedef std::vector<file_path_pair_t> ifvector_t;
-enum class SymType {INST};
+enum class SymType {INST, DATA};
 
 struct Sym {
     bool defined;
@@ -40,21 +41,26 @@ struct FileState {
 
 
 struct AssemblingStatus {
-    bool error, originDefined;  
-    pc_t pc;
+    bool error, originDefined;
+    bool entry;
     addr_t origin;
     std::unordered_map<std::string, Sym> symbols;
     std::unordered_multimap<std::string, std::shared_ptr<Instruction>> incompleteInstructions;
     std::vector<std::shared_ptr<Instruction>> instructions;
     ILogger * logger;
     FileState currentFileState;
-    AssemblingStatus(ILogger * logger) : error(false), originDefined(false), pc(0), symbols(), logger(logger){}
+    AssemblingStatus(ILogger * logger) : error(false), originDefined(false), symbols(), logger(logger){}
     void resetCurrentFile(){currentFileState = FileState();} 
 
 
 };
 
 extern const addr_t DEFAULT_ORIGIN;
+
+
+inline std::striing removeComments(const std::string &line) {
+    return std::string(line.begin(), std::find(line.begin(), line.end(), ';'));
+}
 
 
 /**
