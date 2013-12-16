@@ -24,7 +24,4 @@ void inst_buffer_row::record_write_at(uint cycle){
 
 void inst_buffer_row::record_commit_at(uint cycle){
 	this->commit_at = cycle;
-} 
-
-	
-
+}

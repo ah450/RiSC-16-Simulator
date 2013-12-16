@@ -1,13 +1,18 @@
 #ifndef INST_BUFFER_H
 #define INST_BUFFER_H
 #include "inst_buffer_row.hpp"
-#include <vector>
+#include <deque>
+#include <stdint.h>
 
-class inst_buffer : public inst_buffer_row{	
+class inst_buffer{	
 private:
-	unsigned int number_of_enteries;
-	std::vector<inst_buffer_row> enteries;
+	unsigned int number_of_entries;
+	std::deque<inst_buffer_row> entries;
 
+public:
+	inst_buffer(unsigned int size);
+	virtual bool insert_instruction(uint16_t instruction);
+	virtual unsigned int size();
 };
 
 #endif
