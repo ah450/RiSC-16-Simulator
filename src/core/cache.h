@@ -2,6 +2,7 @@
 #define cache_H
 #include "i_memory.h"
 #include <memory>
+#include <vector>
 #include <iostream>
 
 class cache : public i_memory
@@ -18,7 +19,7 @@ public:
     virtual unsigned short get_data(unsigned short address, int &delay);
     virtual void write_data(unsigned short address, unsigned short data, int &delay);
     virtual memory_block fetch_block(unsigned short address, int &delay);
-    virtual void write_block(memory_block block, int &delay);
+    virtual bool write_block(memory_block block, int &delay);
     virtual unsigned int get_hit_ratio();
 
     //member variables
@@ -41,9 +42,10 @@ private:
 
     //internal functions
     bool validate();
-    unsigned short get_offset(unsigned short address);
-    unsigned short get_index(unsigned short address);
-    unsigned short get_tag(unsigned short address);
+    unsigned short get_replacement(unsigned short address);
+    bool hit_or_miss(ushort tag, ushort &index);
+    void read_address (unsigned short address, unsigned short &offset,
+                       unsigned short &index, unsigned short &tag);
 };
 
 #endif // cache_H

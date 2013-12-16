@@ -7,8 +7,8 @@ enum class MISS_POLICY {WRITE_ALLOCATE, WRITE_AROUND};
 
 class memory_block{
 public:
-    std::vector<short> data;
-    int start_address;
+    std::vector<unsigned short> data;
+    unsigned short start_address;
 };
 
 class i_memory
@@ -18,7 +18,7 @@ public:
     virtual void write_data(unsigned short address,
                             unsigned short data, int &delay)= 0;
     virtual memory_block fetch_block(unsigned short address, int &delay)= 0;
-    virtual void write_block(memory_block block, int &delay)= 0;
+    virtual bool write_block(memory_block block, int &delay)= 0;
 };
 
 #endif // I_MEMORY_H
