@@ -1,6 +1,5 @@
 #include "asm/assembler.hpp"
 #include "asm/internal/regex.hpp"
-#include "asm/internal/instructions.hpp"
 #include <boost/filesystem/fstream.hpp>
 #include <boost/algorithm/string.hpp>
 #include <unordered_map>
@@ -11,6 +10,7 @@
 #include <string>
 #include <memory>
 #include <list>
+#include <set>
 
 namespace ass { namespace internal {
 
@@ -22,6 +22,8 @@ typedef std::uint16_t pc_t;
 typedef std::pair<std::unique_ptr<bfs::ifstream>, bfs::path> file_path_pair_t;
 typedef std::vector<file_path_pair_t> ifvector_t;
 enum class SymType {PTR, DATA};
+enum class InstType {LW, SW, ADDI, JMP, LI, JALR, JALI, ADD, SUB, MUL,
+                    DIV, HALT, AND, OR, XOR, NOT, RET, BEQ, BNE, BGT, BGE, BLT, BLE};
 
 class Sym : std::enable_shared_from_this<Sym>{
     bool defined;
@@ -47,6 +49,13 @@ class SymReference {
     }
 };
 
+
+struct Instruction {
+    std::uint16_t pc;
+    std::uint16_t data;
+    InstType type;    
+};
+
 }} // end namespace ass internal
 
 namespace std {
@@ -63,28 +72,34 @@ namespace std {
 namespace ass { namespace internal {
 
 class FileState {
-    std::list<SymReference> importedList;
-    std::list<SymReference> exportedList;
+    std::set<SymReference> importedSyms;
+    std::set<SymReference> exportedSyms;
     std::string name;
 public:
     FileState(const std::string name);
-    bool isImported(const SymReference &);
+    bool isImported(const SymReference &) const;
+    bool isExported(const SymReference &) const;
+    void import(const SymReference &sym) {importedSyms.emplace(sym);}
+    void export(const SymReference &sym) {exportedSyms.emplace(sym);}
 };
 
 
 class AssemblingStatus {
     bool error, originDefined;  
     addr_t origin;
-    ILogger * logger;
+    std::shared_ptr<ILogger> logger;
     std::unordered_map<bfs::path, FileState> files;
+    std::list<Instruction> insts;
 public:
-    AssemblingStatus(ILogger * logger);
+    AssemblingStatus(std::shared_ptr<ILogger> logger);
     std::FileState & getState(const bfs::path & path) {
         if(files.count(path) == 0){
             files.emplace(std::make_pair(path, FileState(path.generic_string())));
         }
         return files[path];
     }
+
+    std::list<instructions> insts & instList() {return insts};
 
     void defineOrigin(const addr_t &addr) {
         if(!originDefined){
