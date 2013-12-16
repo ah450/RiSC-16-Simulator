@@ -20,6 +20,27 @@ TEST_CASE("Memory instruction parsing", "[regex]") {
             REQUIRE(result[2] == "R0");
             REQUIRE(result[3] == "R4");
             REQUIRE(result[4] == "42");
+
+            SECTION("LW labels") {
+                std::string label("LW R0, R4, hello");
+                boost::smatch result;
+                REQUIRE(boost::regex_match(label, result, ass::regex::label));
+                REQUIRE(result[1] == "LW");
+                REQUIRE(result[2] == "R0");
+                REQUIRE(result[3] == "R4");
+                REQUIRE(result[4] == "hello");
+            }
+
+
+            SECTION("SW labels") {
+                std::string label("SW R0, R4, hello");
+                boost::smatch result;
+                REQUIRE(boost::regex_match(label, result, ass::regex::label));
+                REQUIRE(result[1] == "SW");
+                REQUIRE(result[2] == "R0");
+                REQUIRE(result[3] == "R4");
+                REQUIRE(result[4] == "hello");
+            }
         }
 
         SECTION("Different Bases") {
@@ -398,7 +419,13 @@ TEST_CASE("Uncoditional branch instruction parsing", "[regex]") {
             REQUIRE(result[2] == "R5");
             REQUIRE(result[3] == "22");
         }
-
+        SECTION("LABLE") {
+            std::string test("JML R5, hello");
+            REQUIRE(boost::regex_match(test, result, ass::regex::jmp));
+            REQUIRE(result[1] == "JMP");
+            REQUIRE(result[2] == "R5");
+            REQUIRE(result[3] == "hello");
+        }
     }
 
     SECTION("JAL") {

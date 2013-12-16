@@ -39,9 +39,7 @@ namespace {
         if(boost::regex_match(line, result, ass::regex::arithmReg) && result[1] == "ADD") {
             try {
 
-                std::uint8_t rd = std::stoi(result[2].substr(1));// drop R
-                std::uint8_t rs = std::stoi(result[3].substr(1));
-                std::uint8_t rt = std::stoi(result[4].substr(1));
+                auto regs = getRegsFromArithm(result);
                 Instruction i;
                 i.type = InstType::ADD;
                 i.pc = state.instructions.size();

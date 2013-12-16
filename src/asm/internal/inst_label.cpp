@@ -1,5 +1,5 @@
-#include "internal.hpp"
-
+#include "asm/internal/internal.hpp"
+#include "asm/internal/inst_helpers.hpp"
 
 static bool parseInstruction(file_path_pair_t &file, AssemblingStatus &state, std::size_t &lineNum);
 static bool parseLabel(file_path_pair_t &file, AssemblingStatus &state, std::size_t &lineNum);

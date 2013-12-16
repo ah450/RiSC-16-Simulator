@@ -3,6 +3,6 @@ Import("tag")
 def make_objs(file_list, suffix, enviroment) :
     return [ enviroment.Object(file + '-' + suffix + '.o', file + '.cpp' ) for file in file_list ]
 
-files = Split('regex/regex assembler internal/directives')
+files = Split('regex/regex assembler internal/directives internal/inst_label internal/sym internal/file_state')
 objs = make_objs(files, tag, env)
 Return('objs')

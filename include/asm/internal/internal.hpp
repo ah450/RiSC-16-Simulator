@@ -21,13 +21,9 @@ typedef std::uint16_t addr_t;
 typedef std::uint16_t pc_t;
 typedef std::pair<std::unique_ptr<bfs::ifstream>, bfs::path> file_path_pair_t;
 typedef std::vector<file_path_pair_t> ifvector_t;
-enum class SymType {INST};
+enum class SymType {PTR, DATA};
 
-
-inline std::string removeComments(const std::string &line) {
-    return std::string(line.begin(), std::find(line.begin(), line.end(), ';'));
-}
-struct Sym {
+class Sym : std::enable_shared_from_this<Sym>{
     bool defined;
     bool global;
     addr_t address;
@@ -35,29 +31,86 @@ struct Sym {
     std::string name;
     bfs::path file;
     std::size_t lineNum;
+public:
+    Sym(bool defined, bool global, addr_t value, SymType type, std::string name,
+        bfs::path file, std::size_t lineNum);
+    bool operator==(const Sym &other) const {
+        return (file == other.file) && (name == other.name);
+    }
+
 };
 
-struct FileState {
-    std::list<Sym> importedSyms;
-    std::list<Sym> exportedSyms;
+class SymReference {
+    std::shared_ptr<Sym> ref;
+    bool operator==(const SymReference &other) const {
+        return *ref == *(other.ref);
+    }
+};
+
+}} // end namespace ass internal
+
+namespace std {
+    // std::hash overload for ass::internal::SymReference
+    template<>
+    struct hash<ass::internal::SymReference S> {
+    public:
+        std::size_t operator()(S const& s) const {
+            return std::hash<std::hash<std::string>()(s.ref->name);
+        }
+    };
+} // end std overload
+
+namespace ass { namespace internal {
+
+class FileState {
+    std::list<SymReference> importedList;
+    std::list<SymReference> exportedList;
+    std::string name;
+public:
+    FileState(const std::string name);
+    bool isImported(const SymReference &);
 };
 
 
-struct AssemblingStatus {
+class AssemblingStatus {
     bool error, originDefined;  
     addr_t origin;
-    std::unordered_map<std::string, Sym> symbols;
-    std::unordered_multimap<std::string, std::shared_ptr<Instruction>> incompleteInstructions;
-    std::vector<std::shared_ptr<Instruction>> instructions;
     ILogger * logger;
-    FileState currentFileState;
-    AssemblingStatus(ILogger * logger) : error(false), originDefined(false),     symbols(), logger(logger){}
-    void resetCurrentFile(){currentFileState = FileState();} 
+    std::unordered_map<bfs::path, FileState> files;
+public:
+    AssemblingStatus(ILogger * logger);
+    std::FileState & getState(const bfs::path & path) {
+        if(files.count(path) == 0){
+            files.emplace(std::make_pair(path, FileState(path.generic_string())));
+        }
+        return files[path];
+    }
+
+    void defineOrigin(const addr_t &addr) {
+        if(!originDefined){
+            originDefined = true;
+            origin = addr;
+        }else {
+            // defined multiple times
+            error = true;
+        }
+    }
+
+    template<typename T>
+    AssemblingStatus & operator<<(T&& t) {*logger << t; return *this;}
 
 
 };
 
 extern const addr_t DEFAULT_ORIGIN;
+
+
+/**
+ * @brief utility function for removing comments.
+ */ 
+inline std::string removeComments(const std::string &line) {
+    return std::string(line.begin(), std::find(line.begin(), line.end(), ';'));
+}
 
 
 /**

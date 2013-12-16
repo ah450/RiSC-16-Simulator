@@ -201,16 +201,3 @@ bool ass::internal::tryGlobal(file_path_pair_t &file, AssemblingStatus &state, s
 
 
 
-bool ass::internal::parseLine(file_path_pair_t &file, AssemblingStatus &state, std::size_t &lineNum) {
-    return parseLabel(file, state, lineNum) || parseInstruct(file, state, lineNum);
-}
-
-
-
-
-static bool parseLabel(file_path_pair_t &file, AssemblingStatus &state, std::size_t &lineNum) {
-    
-}
-static bool parseInstruct(file_path_pair_t &file, AssemblingStatus &state, std::size_t &lineNum) {
-    
-}

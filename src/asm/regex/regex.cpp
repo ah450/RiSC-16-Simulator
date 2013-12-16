@@ -23,8 +23,10 @@ const boost::regex regex::globalDirect(R"(\s*#(GLOBAL)\s*()" + labelList + R"()\
 
 
 
-const boost::regex regex::jmp(R"(\s*(JMP)\s*(R[0-7])\s*,\s*()" + number + R"())");
+const boost::regex regex::jmp(R"(\s*(JMP)\s*(R[0-7])\s*,\s*(()" + label + ")|" + number + R"()\s*)");
+
 const boost::regex regex::jalImm(R"(\s*(JAL)\s*(R[0-7])\s*,\s*(()" + label + ")|" + number + R"()\s*)" );
+
 const boost::regex regex::jalReg(R"(\s*(JAL)\s*(R[0-7])\s*,\s*(R[0-7])\s*)"); 
 
 
@@ -35,7 +37,7 @@ const boost::regex regex::loadImm(R"(\s*(LI)\s*(R[0-7])\s*,\s*(()" + label + ")|
 const boost::regex regex::ret(R"(\s*(RET)\s*(R[0-7])\s*)");
 const boost::regex regex::notReg(R"(\s*(NOT)\s*(R[0-7])\s*,\s*(R[0-7])\s*)");
 
-const boost::regex regex::loadStore(R"(\s*(LW|SW)\s*(R[0-7])\s*,\s*(R[0-7])\s*,\s*()" + number + R"()\s*)");               
+const boost::regex regex::loadStore(R"(\s*(LW|SW)\s*(R[0-7])\s*,\s*(R[0-7])\s*,\s*(()" + label + ")|" + number + R"()\s*)");               
 const boost::regex regex::branch(R"(\s*(BEQ|BNE|BGT|BLT|BGE|BLE)\s*(R[0-7])\s*,\s*(R[0-7])\s*,\s*(R[0-7])\s*)");
 
 const boost::regex regex::arithmReg(R"(\s*(ADD|SUB|MUL|DIV|AND|OR|XOR)\s*)" +
