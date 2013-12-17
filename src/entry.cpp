@@ -5,3 +5,4 @@
 #define CATCH_CONFIG_MAIN 
 #include "tests/catch.hpp"
 #include "tests/asm_tests.hpp"
+#include "tests/tomasulo_tests.hpp"

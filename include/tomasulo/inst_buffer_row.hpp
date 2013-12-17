@@ -18,6 +18,7 @@ public:
 	virtual void record_end_execute_at(unsigned cycle);
 	virtual void record_write_at(unsigned cycle);
 	virtual void record_commit_at(unsigned cycle);
+	virtual void print_row_contents();
 };
 
 #endif
