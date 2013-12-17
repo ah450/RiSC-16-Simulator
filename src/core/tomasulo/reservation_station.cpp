@@ -1,19 +1,15 @@
-#include "../../include/tomaulo/reservation_station.hpp"
+#include "../../include/tomasulo/reservation_station.hpp"
 
-reservation_station::reservation_station(TYPE typ, OP operation_type, unsigned int delay){
-	busy = false;
-	vj , vk , qj , qk , destination, address = 0;
-	delay_cycles = delay ;
-	op = op;
-	TYPE = type;
-}
+reservation_station::reservation_station(OP operation_type,  uint16_t vj, 
+	uint16_t vk, uint16_t qj, uint16_t qk, 
+	unsigned int delay, unsigned int address){
+	busy = true;
+	this->vj = vj;
+	this->vk = vk;
+	this->qj = qj;
+	this->qk = qk;
+	op = operation_type;
+	delay_cycles = delay;
+	this->address = address;
 
-uint16_t execute(uint16_t op1, uint16_t op2){
-	switch(OP){
-		case MUL:
-			return op1 * op2;
-		case DIV:
-			if(op2!=0)return op1 / op2;
-		case 
-	}
 }
