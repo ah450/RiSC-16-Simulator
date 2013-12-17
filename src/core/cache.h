@@ -13,12 +13,13 @@ public:
     void on_cache_hit(HIT_POLICY write_hit);
     void on_cache_miss(MISS_POLICY write_miss);
     void cache_delay(int delay_in_cycles);
+    void set_lower_memory(std::shared_ptr<i_memory> lower_memory);
     bool run();
 
     //member functions
     virtual unsigned short get_data(unsigned short address, int &delay);
     virtual void write_data(unsigned short address, unsigned short data, int &delay);
-    virtual memory_block fetch_block(unsigned short address, int &delay);
+    virtual memory_block fetch_block(unsigned short address, int size, int &delay);
     virtual bool write_block(memory_block block, int &delay);
     virtual unsigned int get_hit_ratio();
 
@@ -38,7 +39,7 @@ private:
     std::vector< std::vector<unsigned short> > memory_array;
     HIT_POLICY write_hit;
     MISS_POLICY write_miss;
-    std::weak_ptr<i_memory> lower_memory;
+    std::shared_ptr<i_memory> lower_memory;
 
     //internal functions
     bool validate();
@@ -46,6 +47,9 @@ private:
     bool hit_or_miss(ushort tag, ushort &index);
     void read_address (unsigned short address, unsigned short &offset,
                        unsigned short &index, unsigned short &tag);
+    void buffer_block_write(memory_block block, int& delay);
+    memory_block buffer_block_fetch(unsigned short address,
+                                    int size, int& delay);
 };
 
 #endif // cache_H
