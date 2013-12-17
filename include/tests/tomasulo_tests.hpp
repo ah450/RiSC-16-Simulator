@@ -19,8 +19,7 @@ TEST_CASE("instruction buffer intialized correctly"){
 		inst_buffer ib1 = inst_buffer(3);
 		ib1.insert_instruction(5);
 		ib1.insert_instruction(287);
-		bool inserted3 = ib1.insert_instruction(2287);
-		REQUIRE(inserted3);
+		REQUIRE(ib1.insert_instruction(1924));
 	}
 
 	SECTION("Should not allow more instructions than the max size"){
@@ -28,8 +27,7 @@ TEST_CASE("instruction buffer intialized correctly"){
 		ib2.insert_instruction(5);
 		ib2.insert_instruction(287);
 		ib2.insert_instruction(2287);
-		bool inserted4 = ib2.insert_instruction(2287);
-		REQUIRE(!inserted4);
+		REQUIRE(!ib2.insert_instruction(2287));
 	}
 
 
