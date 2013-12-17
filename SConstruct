@@ -15,7 +15,7 @@ libs = Split( '  ' )
 
 #debug options
 debug = Environment(ENV = {'PATH' : os.environ['PATH']})
-debug['CXX'] = 'g++-4.8'
+debug['CXX'] = 'g++'
 debug['CXXFLAGS'] = '-Wall -std=c++1y -O0 -g -fPIE' + paths
 debug.Append( LINKFLAGS = Split(' -fPIE') )
 
