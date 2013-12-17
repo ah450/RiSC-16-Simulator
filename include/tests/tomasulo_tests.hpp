@@ -1,9 +1,10 @@
-#ifndef CACHE_TEST_H
-#define CACHE_TEST_H
+#ifndef TOMASULO_TESTS_H
+#define TOMASULO_TESTS_H
+#endif
 
-#endif // CACHE_TEST_H
-
-#include "tomasulo/inst_buffer.hpp"
+#include "catch.hpp"
+#include "./tomasulo/inst_buffer.hpp"
+#include "tomasulo/reg_board.hpp"
 
 TEST_CASE("instruction buffer intialized correctly"){
 
@@ -29,6 +30,26 @@ TEST_CASE("instruction buffer intialized correctly"){
 		ib2.insert_instruction(2287);
 		bool inserted4 = ib2.insert_instruction(2287);
 		REQUIRE(!inserted4);
+	}
+
+
+}
+
+TEST_CASE("registers board"){
+	
+	reg_board rb ;
+	SECTION("check used and un-using register #1"){
+		REQUIRE(!rb.used(1));
+		rb.record(1,200);
+		REQUIRE(rb.used(1));
+		rb.unrecord(1);
+		REQUIRE(!rb.used(1));
+	}
+
+	reg_board rb1;
+	SECTION("saving and retriveing values"){
+		rb1.record(8,200);
+		REQUIRE(rb1.retrieve(8)==200);
 	}
 
 
