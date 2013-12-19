@@ -21,7 +21,7 @@ public:
     virtual void write_data(unsigned short address, unsigned short data, int &delay);
     virtual memory_block fetch_block(unsigned short address, int size, int &delay);
     virtual bool write_block(memory_block block, int &delay);
-    virtual unsigned int get_hit_ratio();
+    virtual double get_hit_ratio();
 
     //member variables
 private:
@@ -50,6 +50,7 @@ private:
     void buffer_block_write(memory_block block, int& delay);
     memory_block buffer_block_fetch(unsigned short address,
                                     int size, int& delay);
+    unsigned int get_delay(){ return delay_in_cycles; }
 };
 
 #endif // cache_H

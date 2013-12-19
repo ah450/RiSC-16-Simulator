@@ -4,15 +4,16 @@
 #include <iostream>
 #include <ctime>
 #include <memory>
+#include <cstdint>
 
-#define error(x) {std::cout<<"ERROR: "<<x<<std::endl; return false;}
+#define error(x) {return false;}
 #define MINIMU_CACHE_SIZE 2
 #define MAXIMUM_CACHE_SIZE 65536
 #define ADDRESS_SIZE 16
 #define mask(x) (pow(2,x)-1) //mask bits
 
-using ushort = unsigned short;
-using uint = unsigned int;
+using ushort = uint16_t;
+using uint = uint32_t;
 
 cache::cache(uint cache_size,
              uint line_size,
@@ -40,7 +41,6 @@ void cache::set_lower_memory(std::shared_ptr<i_memory> lower_memory){
 }
 
 bool cache::run(){
-    std::cout << "running" <<std::endl;
     if(!running )
         if(validate()){
             number_of_lines = cache_size / line_size;
@@ -55,7 +55,8 @@ bool cache::run(){
             offset_bits = ceil(log2(line_size));
             index_bits = ceil(log2(number_of_lines/associativity));
             tag_bits = ADDRESS_SIZE - (offset_bits + index_bits);
-
+            cache_accesses = 0;
+            cache_misses = 0;
             this->running = true;
             return true;
         }
@@ -63,7 +64,6 @@ bool cache::run(){
 }
 
 bool cache::validate(){
-    std::cout<< "***validating***" <<std::endl;
     if (cache_size < MINIMU_CACHE_SIZE )
         error("small cache size is too small");
     if (cache_size > MAXIMUM_CACHE_SIZE)
@@ -90,23 +90,18 @@ bool cache::validate(){
 }
 
 ushort cache::get_data(ushort address, int &delay){
-    std::cout << "93" <<std::endl;
     //get index, tag & offset
     ushort offset , index, tag;
     read_address(address, offset,  index,  tag);
-    std::cout << "multilevel" <<std::endl;
     bool found = hit_or_miss(tag, index);
-    std::cout << found <<std::endl;
+    cache_accesses++;
     if(found){//read hit
-        std::cout<<"INFO: "<<"read hit "<< memory_array[index][offset/2]<<std::endl;
-        delay = delay_in_cycles;
+        delay += delay_in_cycles;
         return(memory_array[index][offset/2]);
     }else{
-        std::cout<<"INFO: "<<"read miss"<<std::endl;
+        cache_misses++;
         delay += delay_in_cycles;
-        std::cout << "105" <<std::endl;
         ushort data = lower_memory->get_data(address, delay);//get data from lower mem
-        std::cout << "107" <<std::endl;
         write_block(lower_memory->fetch_block(address, line_size/2, delay),delay);//write in memory
         return data;
     }
@@ -118,7 +113,8 @@ void cache::write_data(unsigned short address,
     read_address(address, offset,  index,  tag);
     bool found = hit_or_miss(tag, index);
     if(found){//write hit
-        std::cout<<"INFO: "<<"write hit"<<std::endl;
+        cache_accesses++;
+        delay += delay_in_cycles;
         /*handle dirty*/
         if(memory_array[index][line_size/2+1] & (ushort) 0x2)//block dirty
         {/*pass block to lower level*/
@@ -127,15 +123,10 @@ void cache::write_data(unsigned short address,
             copy(memory_array[index].begin(),memory_array[index].begin()+line_size/2
                  ,block.data.begin());
             ushort prev_address =0;
-            std::cout<<"address: "<<prev_address<<std::endl;
             prev_address |= index>>offset_bits ;
-            std::cout<<"address: "<<prev_address<<std::endl;
-            std::cout<<"index: "<<index<<std::endl;
             prev_address |= memory_array[index][line_size/2]
                     >>(offset_bits+index_bits);
-            std::cout<<"address: "<<prev_address<<std::endl;
             block.start_address = prev_address;
-            std::cout<<"address: "<<prev_address<<std::endl;
             lower_memory->write_block(block, delay);
         }
         memory_array[index][offset/2] = data;
@@ -149,41 +140,41 @@ void cache::write_data(unsigned short address,
             memory_array[index][line_size/2+1] = (ushort) 0x3;//valid and dirty
         }
     }else{//write miss
-        std::cout<<"ERROR: "<<"write miss"<<std::endl;
+        cache_misses++;
         if(write_miss == MISS_POLICY::WRITE_ALLOCATE){
             /*fetch block then update */
-            if(lower_memory)
-            write_block(lower_memory->fetch_block(address,line_size,delay),delay);
+            if(lower_memory){
+                write_block(lower_memory->fetch_block
+                            (address,line_size,delay),delay);
+                delay +=lower_memory->get_delay();
+            }
             write_data(address,data,delay);
         }else{
+            cache_accesses++;
             /* update main memory only */
+            delay += delay_in_cycles;
             if(lower_memory)
             lower_memory->write_data(address,data,delay);
         }
     }
 }
 
-//not implemented
+
 memory_block cache::fetch_block(ushort address, int size, int &delay){
     //make sure you have the block
     ushort offset , index, tag;
     read_address(address, offset,  index,  tag);
-    std::cout<<"148"<<std::endl;
     if((ushort)size+offset/2 > (ushort)line_size/2){//it takes multiple blocks
-        std::cout<<"150"<<std::endl;
         return buffer_block_fetch(address,size,delay);
     }else{//just one block
         if(memory_array[index][line_size/2] == tag
                 && (memory_array[index][line_size/2+1] & (ushort) 0x1)){
-            std::cout<<offset<<std::endl;
         memory_block block;
         block.data = std::vector<ushort>(1,1);
         copy(memory_array[index].begin()+offset/2
              ,memory_array[index].begin()+ offset/2+size,
              block.data.begin());
-        std::cout<<"160"<<std::endl;
         block.start_address = address;
-        std::cout<<"159"<<std::endl;
         return block;
         }else{//memory doesn't exist
             write_block(lower_memory->fetch_block(address,size,delay),delay);
@@ -194,22 +185,16 @@ memory_block cache::fetch_block(ushort address, int size, int &delay){
 
 
 bool cache::write_block(memory_block block, int &delay){
-    std::cout << "164" <<std::endl;
     ushort offset , index, tag;
     read_address(block.start_address, offset, index, tag);
-    std::cout << "167" <<std::endl;
     if(offset % 2 == 1) throw 201;
     uint size = block.data.size();
-std::cout << "170" <<std::endl;
     if(size+offset/2 > line_size/2){
         buffer_block_write( block, delay);
         return true;
     }
-std::cout << "175" <<std::endl;
     index = get_replacement(block.start_address);
-    std::cout<<index<<std::endl;
     //handle dirty here
-    std::cout << "179" <<std::endl;
     if(memory_array[index][line_size/2+1] & (ushort) 0x2)//block dirty
     {/*pass block to lower level*/
         memory_block block;
@@ -217,63 +202,45 @@ std::cout << "175" <<std::endl;
         copy(memory_array[index].begin(),memory_array[index].begin()+line_size/2
              ,block.data.begin());
         ushort prev_address =0;
-        std::cout<<"address: "<<prev_address<<std::endl;
         prev_address |= index>>offset_bits ;
-        std::cout<<"address: "<<prev_address<<std::endl;
-        std::cout<<"index: "<<index<<std::endl;
         prev_address |= memory_array[index][line_size/2]
                 >>(offset_bits+index_bits);
-        std::cout<<"address: "<<prev_address<<std::endl;
         block.start_address = prev_address;
         lower_memory->write_block(block, delay);
     }
-    std::cout << "193" <<std::endl;
     memory_array[index] = std::vector<ushort>(line_size/2+2,0);
-    std::cout << "195" <<std::endl;
     memory_array[index][line_size/2] = tag;//set tag
     memory_array[index][line_size/2+1] = (ushort) 0x1; //set valid bit
     copy(block.data.begin(),block.data.end(),memory_array[index].begin()+offset/2);
     return true;
 }
 
-//not implemented
-uint cache::get_hit_ratio(){
-    return 0;
-}
 
 ushort cache::get_replacement(ushort address){//using Random replacement
     //check valid bits
     ushort offset , index, tag;
     read_address(address, offset, index, tag);
-    std::cout << "209" <<std::endl;
     for (int i = 0; i < (short)associativity; ++i) {
         if(!(memory_array[index][line_size/2+1] & (ushort) 0x1))
               return index;
         index+= number_of_lines/associativity;
     }//all are valid choose a random element
-    std::cout << "215" <<std::endl;
     index-= number_of_lines/associativity;
     std::srand(time(NULL));
     int ind = std::rand() % associativity;
-    std::cout << "multilevel" <<std::endl;
     return index + ind *(number_of_lines / associativity);
 }
 
 
 bool cache::hit_or_miss(ushort tag, ushort &index){
-    std::cout << "231" <<std::endl;
     for (int i = 0; i < (short)associativity; ++i) {
-        std::cout << memory_array[0][0] <<std::endl;
         if((memory_array[index][line_size/2+1] & (ushort) 0x1)){//index is valid
-           std::cout << "234" <<std::endl;
             if(memory_array[index][line_size/2] == tag){//the same tag
-                std::cout << "236" <<std::endl;
                 return true;
             }
         }
         index+= number_of_lines/associativity;
     }
-    std::cout << "multilevel" <<std::endl;
     return false;
 }
 
@@ -347,4 +314,8 @@ memory_block cache::buffer_block_fetch(ushort address, int size, int &delay){
     memory_block block4 = fetch_block(address2,line_size/2,delay);
     copy(block4.data.begin(),block4.data.end(),block.data.begin()+inc);
     return block;
+}
+
+double cache::get_hit_ratio(){
+    return 1 - ((double)cache_misses/(double)cache_accesses);
 }

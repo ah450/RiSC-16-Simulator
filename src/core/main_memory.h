@@ -1,6 +1,8 @@
 #ifndef main_memory_H
 #define main_memory_H
 #include "i_memory.h"
+#include <vector>
+#include <cstdint>
 
 //size = 64 * 1024 * 8 /16 for 64KB and 16-bit words
 #define MAIN_MEMORY_SIZE 32768
@@ -9,13 +11,19 @@ class main_memory : public i_memory
 {
 public:
     // initializers
-    main_memory(unsigned int delay_in_cycles);
+    main_memory(unsigned int delay_in_cycles)
+        :delay_in_cycles(delay_in_cycles)
+    {}
+    bool run();
 
     //member functions
-    virtual unsigned short get_data(unsigned short address, int &delay);
-    virtual void write_data(unsigned short address, unsigned short data, int &delay);
-    virtual memory_block fetch_block(unsigned short address, int &delay);
-    virtual void write_block(memory_block block, int &delay);
+    virtual unsigned short get_data(unsigned short address, int &delay)= 0;
+    virtual void write_data(unsigned short address,
+                            unsigned short data, int &delay)= 0;
+    virtual memory_block fetch_block(unsigned short address, int size, int &delay)= 0;
+    virtual bool write_block(memory_block block, int &delay)= 0;
+    virtual unsigned int get_delay() = 0;
+
 
     //member variables
 private:
@@ -23,6 +31,7 @@ private:
     unsigned int line_size;
     unsigned int associativity;
     unsigned int delay_in_cycles;
+    std::vector<uint16_t> memory;
 };
 
 #endif // main_memory_H
