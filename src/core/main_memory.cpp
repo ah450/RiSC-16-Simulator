@@ -7,10 +7,10 @@ using uint = uint32_t;
 using ushort = uint16_t;
 
 memory_block main_memory::fetch_block(ushort address, int size, int &delay){
-    address = address /2;
     memory_block block;
-    copy(memory.begin()+address,memory.begin()+size,block.data.begin());
-    block.start_address = address - address%2;
+    block.data = std::vector<ushort>(1,0);
+    copy(memory.begin()+address/2,memory.begin()+address/2+size,block.data.begin());
+    block.start_address = address ;
     return block;
 }
 

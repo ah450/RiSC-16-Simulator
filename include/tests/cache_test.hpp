@@ -245,9 +245,9 @@ TEST_CASE("main memory ","[memory]"){
     REQUIRE(ram->get_data((ushort)0,delay) == 8);
 
     block.start_address = 4;
-    l2_cache->write_block(block,delay);
+    ram->write_block(block,delay);
     l_cache.write_data((ushort)4, (ushort)2,delay);//write miss fetch
-    REQUIRE(l2_cache->get_data((ushort)4,delay) == 5);
+    REQUIRE(ram->get_data((ushort)4,delay) == 5);
 
     REQUIRE(l_cache.get_hit_ratio() == 0.5 );
 

@@ -17,12 +17,12 @@ public:
     bool run();
 
     //member functions
-    virtual unsigned short get_data(unsigned short address, int &delay)= 0;
+    virtual unsigned short get_data(unsigned short address, int &delay);
     virtual void write_data(unsigned short address,
-                            unsigned short data, int &delay)= 0;
-    virtual memory_block fetch_block(unsigned short address, int size, int &delay)= 0;
-    virtual bool write_block(memory_block block, int &delay)= 0;
-    virtual unsigned int get_delay() = 0;
+                            unsigned short data, int &delay);
+    virtual memory_block fetch_block(unsigned short address, int size, int &delay);
+    virtual bool write_block(memory_block block, int &delay);
+    virtual unsigned int get_delay() ;
 
 
     //member variables
