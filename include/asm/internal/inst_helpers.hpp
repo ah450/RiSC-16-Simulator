@@ -24,10 +24,11 @@ namespace {
             boost::smatch result;
             if(boost::regex_match(line, result, ass::regex::halt)) {
                 Instruction i;
+                auto instList & = state.insts();
                 i.type = InstType::HALT;
-                i.pc = state.instructions.size();
+                i.pc = instList.size();
                 i.data = 0xE800;
-                state.instructions.empalce_back(std::make_shared(new Instruction(i)));
+                instList.empalce_back(i);
                 lineNum++;
                 return true;
             }else {
@@ -42,15 +43,16 @@ namespace {
         if(boost::regex_match(line, result, ass::regex::arithmReg) && result[1] == "ADD") {
             try {
                 auto regs = getRegsFromArithm(result);
+                auto instList & = state.insts();
                 Instruction i;
                 i.type = InstType::ADD;
-                i.pc = state.instructions.size();
+                i.pc = instList.size();
                 i.data = (0xE000) | unpackRegs(regs) ;
-                state.instructions.empalce_back(std::make_shared(new Instruction(i)));
+                instList.empalce_back(i);
                
             }catch(...) {
-                (*state.logger) << "Error: Invalid register number : " << line << '\n';
-                state.error = true;
+                state << "Error: Invalid register number : " << line << '\n';
+                state.signalError()
             }
             
             lineNum++;
@@ -68,14 +70,15 @@ namespace {
         if(boost::regex_match(line, result, ass:regex::arithmReg) && result[1] == "MUL") {
             try {
                 auto regs = getRegsFromArithm(result);
+                auto instList & = state.insts();
                 Instruction i;
                 i.type = InstType::MUL;
-                i.pc = state.instructions.size();
+                i.pc = instList.size();
                 i.data = 0xE400 | unpackRegs(regs);
-                state.instructions.empalce_back(std::make_shared(new Instruction(i)));
+                instList.empalce_back(i);
             }catch (...) {
-                (*state.logger) << "Error: Invalid register number line : " << line << '\n';
-                state.error = true;
+                state << "Error: Invalid register number line : " << line << '\n';
+                state.signalError()
             }
              lineNum++;
             return true;
@@ -91,16 +94,17 @@ namespace {
         if(boost::match_result(line, result, ass::regex::arithmReg) && result[1] == "SUB") {
             try {
 
-                auto regsTuple = getRegsFromArithm(result);
+                auto regs = getRegsFromArithm(result);
+                auto instList & = state.insts();
                 Instruction i;
-                i.pc = state.instructions.size();
+                i.pc = instList.size();
                 i.data = 0xE200 | unpackRegs(regs);
                 i.type = InstType::SUB;
-                state.instructions.empalce_back(std::make_shared(new Instruction(i)));
+                instList.empalce_back(i);
 
             }catch(...) {
-                (*state.logger) << "Error: Invalid register number line: " << line << '\n';
-                state.error = true;
+                state << "Error: Invalid register number line: " << line << '\n';
+                state.signalError();
                 
             }
             lineNum++;
@@ -118,15 +122,16 @@ namespace {
         boost::smatch result;
         if(boost::regex_match(line, result, ass::arithmReg) && result[1] == "DIV") {
             try {
-                auto regsTuple = getRegsFromArithm(result);
+                auto regs = getRegsFromArithm(result);
+                auto instList & = state.insts();
                 Instruction i;
-                i.pc = state.instructions.size();
+                i.pc = instList.size();
                 i.data = 0xE600 | unpackRegs(regs);
                 i.type = InstType::DIV;
-                state.instructions.empalce_back(std::make_shared(new Instruction(i)));
+                instList.empalce_back(i);
             }catch(...) {
-                (*state.logger) << "Error: Invalid register number line: " << line << '\n';
-                state.error = true;
+                state << "Error: Invalid register number line: " << line << '\n';
+                state.signalError();
             }
             lineNum++;
             return true;
@@ -145,16 +150,17 @@ namespace {
         boost::smatch result;
         if(boost::regex_match(line, result, ass::arithmReg) && result[1] == "AND") {
             try {
-                auto regsTuple = getRegsFromArithm(result);
+                auto regs = getRegsFromArithm(result);
+                auto instList & = state.insts();
                 Instruction i;
-                i.data = 0; // FIXME
-                i.pc = state.instructions.size();
+                i.data = 0xEA00 | unpackRegs(regs);
+                i.pc = instList.size();
                 i.type = InstType::AND;
-                state.instructions.empalce_back(std::make_shared(new Instruction(i)));
+                instList.empalce_back(i);
 
             }catc(...) {
-                (*state.logger) << "Error: Invalid register number line: " << line << '\n';
-                state.error = true; 
+                state << "Error: Invalid register number line: " << line << '\n';
+                state.signalError(); 
             }
             lineNum++;
             return true;
@@ -170,14 +176,15 @@ namespace {
             if(boost::regex_match(line, result, ass::regex::arithmReg) && result[1] == "OR") {
                 try {
                     auto regs = getRegsFromArithm(result);
+                    auto instList & = state.insts();
                     Instruction i;
-                    i.data = 0;// FIXME
-                    i.pc = state.instructions.size();
+                    i.data = 0xEC00 | unpackRegs(regs);
+                    i.pc = instList.size();
                     i.type = InstType::OR;
-                    state.instructions.empalce_back(std::make_shared(new Instruction(i)));
+                    instList.empalce_back(i);
                 }catch(...) {
-                    (*state.logger) << "Error: Invalid register number line: " << line << '\n';
-                    state.error = true;
+                    state << "Error: Invalid register number line: " << line << '\n';
+                    state.signalError();
                 }
                 lineNum++;
                 return true;
@@ -194,14 +201,15 @@ namespace {
             if(boost::regex_match(line, result, ass::regex::arithmReg) && result[1] == "XOR") {
                 try {
                     auto regs = getRegsFromArithm(result);
+                    auto & insts = state.instList();
                     Instruction i;
                     i.type = InstType::OR;
-                    i.pc = state.instructions.size();
-                    i.data = 0; // FIXME
-                    state.instructions.empalce_back(std::make_shared(new Instruction(i));
+                    i.pc = insts.size();
+                    i.data = 0xEE00 | unpackRegs(regs);
+                    insts.empalce_back(i);
                 }catch(...) {
-                    (*state.logger) << "Error: Invalid register number line: " << line << '\n';
-                    state.error = true;
+                    state << "Error: Invalid register number line: " << line << '\n';
+                    state.signalError();
                 }
                 lineNum++;
                 return true;
@@ -214,19 +222,20 @@ namespace {
     struct NOTF{
         bool operator()(const std::string &line, AssemblingState &state, std::size_t &lineNum) {
             boost::smatch result;
-            if(boost::regex_match(line, result, ass::regex::arithmReg) && result[1] == "NOT") {
-
+            if(boost::regex_match(line, result, ass::regex::notReg) && result[1] == "NOT") {
                 try {
-                    auto regs = getRegsFromArithm(result);
+                    std::uint8_t rd = std::stoi(result[2].substr(1)) & 0x07;
+                    std::uint8_t rs = std::stoi(result[3].substr(1)) & 0x07;
+                    auto & insts = state.instList();
                     Instruction i;
-                    i.data = 0; //FIXME
-                    i.pc = state.instructions.size();
+                    i.data = 0xF000 | (rd << 6) | (rs << 3); 
+                    i.pc = instList.size();
                     i.type = InstType::NOT;
-                    state.instructions.empalce_back(new Instruction(i));
+                    state.instructions.empalce_back(i);
 
                 }catch(...) {
-                    (*state.logger) << "Error: Invalid register number line: " << line << '\n';
-                    state.error = true;
+                    state << "Error: Invalid register number line: " << line << '\n';
+                    state.signalError();
                 }
                 lineNum++;
                 return true;
@@ -247,7 +256,7 @@ namespace {
                     i.type == InstType::SW;
                 }
                 i.data = 0;
-                i.pc = state.instructions.size();
+                i.pc = instList.size();
                 state.instructions.empalce_back(std::make_shared(new Instruction(i)));
                 lineNum++;
                 return true;
@@ -264,7 +273,7 @@ namespace {
                 Instruction i;
                 i.data = 0; //FIXME 
                 i.type = InstType::ADDI;
-                i.pc = state.instructions.size();
+                i.pc = instList.size();
                 state.instructions.empalce_back(std::make_shared(new Instruction(i)));
                 lineNum++;
                 return true;
@@ -274,7 +283,8 @@ namespace {
         }
     };
     std::array<instFunct_t, > instParsers = {{
-        {HaltF()}, {AddF()}, {MulF()}, {SubF()}, {ORF()}, {XORF()}, {LSWF()}, {AddiF()}
+        {HaltF()}, {AddF()}, {MulF()}, {SubF()}, {ORF()}, {XORF()}, {LSWF()}, {AddiF()},
+        {NOTF()}, {AndF()}, {DivF()}
     
     }};
 }

@@ -115,6 +115,7 @@ public:
     template<typename T>
     AssemblingStatus & operator<<(T&& t) {*logger << t; return *this;}
 
+    void signalError() { error = true;}
 
 };
 
