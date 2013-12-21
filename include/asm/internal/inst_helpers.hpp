@@ -15,6 +15,9 @@ namespace {
         std::uint8_t rt = std::stoi(m[4].substr(1)) & 0x07;
         return std::make_tuple(rd, rs, rt); 
     }
+    inline std::uint16_t unpackRegs(std::tuple<std::uint8_t, std::uint8_t, std::uint8_t> &regs) {
+        return (regs.get<0>() << 6) | (regs.get<1>() << 3) | regs.get<2>();
+    }
     struct HaltF {
 
         bool operator()(const std::string &line, AssemblingState &state, std::size_t &lineNum) {
@@ -42,7 +45,7 @@ namespace {
                 Instruction i;
                 i.type = InstType::ADD;
                 i.pc = state.instructions.size();
-                i.data = (0xE000) | (regs.get<0>() << 6) | (regs.get<1>() << 3) | regs.get<2>();
+                i.data = (0xE000) | unpackRegs(regs) ;
                 state.instructions.empalce_back(std::make_shared(new Instruction(i)));
                
             }catch(...) {
@@ -64,11 +67,11 @@ namespace {
         boost::smatch result;
         if(boost::regex_match(line, result, ass:regex::arithmReg) && result[1] == "MUL") {
             try {
-                auto regsTuple = getRegsFromArithm(result);
+                auto regs = getRegsFromArithm(result);
                 Instruction i;
                 i.type = InstType::MUL;
                 i.pc = state.instructions.size();
-                i.data = 0; //FIXME
+                i.data = 0xE400 | unpackRegs(regs);
                 state.instructions.empalce_back(std::make_shared(new Instruction(i)));
             }catch (...) {
                 (*state.logger) << "Error: Invalid register number line : " << line << '\n';
@@ -91,7 +94,7 @@ namespace {
                 auto regsTuple = getRegsFromArithm(result);
                 Instruction i;
                 i.pc = state.instructions.size();
-                i.data = 0;// FIXME
+                i.data = 0xE200 | unpackRegs(regs);
                 i.type = InstType::SUB;
                 state.instructions.empalce_back(std::make_shared(new Instruction(i)));
 
@@ -118,7 +121,7 @@ namespace {
                 auto regsTuple = getRegsFromArithm(result);
                 Instruction i;
                 i.pc = state.instructions.size();
-                i.data = 0; // FIXME
+                i.data = 0xE600 | unpackRegs(regs);
                 i.type = InstType::DIV;
                 state.instructions.empalce_back(std::make_shared(new Instruction(i)));
             }catch(...) {
