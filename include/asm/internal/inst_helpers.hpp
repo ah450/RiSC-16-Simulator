@@ -10,9 +10,9 @@ namespace {
     using ass::internal;
 
     inline std::tuple<std::uint8_t, std::uint8_t, std::uint8_t> getRegsFromArithm(boost::smatch &m) {
-        std::uint8_t rd = std::stoi(m[2].substr(1));
-        std::uint8_t rs = std::stoi(m[3].substr(1));
-        std::uint8_t rt = std::stoi(m[4].substr(1));
+        std::uint8_t rd = std::stoi(m[2].substr(1)) & 0x07;
+        std::uint8_t rs = std::stoi(m[3].substr(1)) & 0x07;
+        std::uint8_t rt = std::stoi(m[4].substr(1)) & 0x07;
         return std::make_tuple(rd, rs, rt); 
     }
     struct HaltF {
@@ -23,7 +23,7 @@ namespace {
                 Instruction i;
                 i.type = InstType::HALT;
                 i.pc = state.instructions.size();
-                i.data = 0; // FIXME
+                i.data = 0xE800;
                 state.instructions.empalce_back(std::make_shared(new Instruction(i)));
                 lineNum++;
                 return true;
@@ -38,12 +38,11 @@ namespace {
         boost::smatch result;
         if(boost::regex_match(line, result, ass::regex::arithmReg) && result[1] == "ADD") {
             try {
-
                 auto regs = getRegsFromArithm(result);
                 Instruction i;
                 i.type = InstType::ADD;
                 i.pc = state.instructions.size();
-                i.data = 0; // FIXME
+                i.data = (0xE000) | (regs.get<0>() << 6) | (regs.get<1>() << 3) | regs.get<2>();
                 state.instructions.empalce_back(std::make_shared(new Instruction(i)));
                
             }catch(...) {
