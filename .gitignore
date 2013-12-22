@@ -21,4 +21,9 @@ RiSC-16-dbg
 *.sublime-project
 *.sublime-workspace
 project.*
-RiSC.*
+
+# kareem edit files
+RiSC.config
+RiSC.includes
+RiSC.creator
+RiSC.creator.user
