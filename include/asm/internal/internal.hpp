@@ -26,7 +26,7 @@ enum class SymType {PTR, DATA};
 enum class InstType {LW, SW, ADDI, JMP, LI, JALR, JALI, ADD, SUB, MUL,
                     DIV, HALT, AND, OR, XOR, NOT, RET, BEQ, BNE, BGT, BGE, BLT, BLE};
 
-class Sym : std::enable_shared_from_this<Sym>{
+struct Sym : std::enable_shared_from_this<Sym>{
     bool defined;
     bool global;
     addr_t address;
@@ -34,19 +34,27 @@ class Sym : std::enable_shared_from_this<Sym>{
     std::string name;
     bfs::path file;
     std::size_t lineNum;
-public:
-    Sym(bool defined, bool global, addr_t value, SymType type, std::string name,
-        bfs::path file, std::size_t lineNum);
+    // undefined symbol
+    Sym(bfs::path file, cosnt std::string & name);
+    Sym(bool defined, bool global, const std::string &name,
+        bfs::path file, std::size_t lineNum,  addr_t value, SymType type);
     bool operator==(const Sym &other) const {
         return (file == other.file) && (name == other.name);
+    }
+    bool operator<(const Sym & other) const {
+        return (file.generic_string() +  name ) < (other.file.generic_string() + other.name);
     }
 
 };
 
-class SymReference {
+struct SymReference {
     std::shared_ptr<Sym> ref;
+    SymReference(std::shared_ptr<Sym> &&ref) : ref(ref) {}
     bool operator==(const SymReference &other) const {
         return *ref == *(other.ref);
+    }
+    bool operator<(const SymReference & other) {
+        return *ref  < *(other.ref);
     }
 };
 
@@ -72,16 +80,13 @@ namespace std {
 
 namespace ass { namespace internal {
 
-class FileState {
+struct FileState {
     std::set<SymReference> importedSyms;
     std::set<SymReference> exportedSyms;
-    std::string name;
-public:
+    std::set<SymReference> localSyms;
+    std::multimap<SymReference, pc_t> localDeps;
+    bfs::path name;
     FileState(const std::string name);
-    bool isImported(const SymReference &) const;
-    bool isExported(const SymReference &) const;
-    void import(const SymReference &sym) {importedSyms.emplace(sym);}
-    void export(const SymReference &sym) {exportedSyms.emplace(sym);}
 };
 
 
@@ -91,15 +96,19 @@ class AssemblingStatus {
     std::shared_ptr<ILogger> logger;
     std::unordered_map<bfs::path, FileState> files;
     std::list<Instruction> insts;
+    std::set<SymReference> allReferences;
+    std::multimap<SymReference, pc_t> dependencies;
 public:
     AssemblingStatus(std::shared_ptr<ILogger> logger);
     std::FileState & getState(const bfs::path & path) {
         if(files.count(path) == 0){
-            files.emplace(std::make_pair(path, FileState(path.generic_string())));
+            files.emplace(std::make_pair(path, FileState(path)));
         }
         return files[path];
     }
 
+    std::multi_map<SymReference, std::size_t> & deps() { return dependencies;};
+    std::set<SymReference> & syms() { return allReferences;}
     std::list<instructions> insts & instList() {return insts};
 
     void defineOrigin(const addr_t &addr) {

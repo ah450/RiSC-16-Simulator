@@ -24,7 +24,7 @@ TEST_CASE("Memory instruction parsing", "[regex]") {
             SECTION("LW labels") {
                 std::string label("LW R0, R4, hello");
                 boost::smatch result;
-                REQUIRE(boost::regex_match(label, result, ass::regex::label));
+                REQUIRE(boost::regex_match(label, result, ass::regex::loadStore));
                 REQUIRE(result[1] == "LW");
                 REQUIRE(result[2] == "R0");
                 REQUIRE(result[3] == "R4");
@@ -35,7 +35,7 @@ TEST_CASE("Memory instruction parsing", "[regex]") {
             SECTION("SW labels") {
                 std::string label("SW R0, R4, hello");
                 boost::smatch result;
-                REQUIRE(boost::regex_match(label, result, ass::regex::label));
+                REQUIRE(boost::regex_match(label, result, ass::regex::loadStore));
                 REQUIRE(result[1] == "SW");
                 REQUIRE(result[2] == "R0");
                 REQUIRE(result[3] == "R4");

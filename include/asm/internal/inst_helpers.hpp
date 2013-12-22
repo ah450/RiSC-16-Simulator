@@ -6,8 +6,9 @@
 
 //TODO:GENERATE OPCODES
 namespace {
-    typedef std::function<bool(const std::string &, AssemblingState &, std::size_t&) instFunct_t;
-    using ass::internal;
+        using namespace ass::internal;
+    typedef std::function<bool(const std::string &, AssemblingState &, std::size_t&, FileState&) instFunct_t;
+
 
     inline std::tuple<std::uint8_t, std::uint8_t, std::uint8_t> getRegsFromArithm(boost::smatch &m) {
         std::uint8_t rd = std::stoi(m[2].substr(1)) & 0x07;
@@ -18,9 +19,40 @@ namespace {
     inline std::uint16_t unpackRegs(std::tuple<std::uint8_t, std::uint8_t, std::uint8_t> &regs) {
         return (regs.get<0>() << 6) | (regs.get<1>() << 3) | regs.get<2>();
     }
+
+    inline std::uint16_t convertNumber(const std::string &num) {
+
+        if(num.size() >=2 num[0] == '0' && num[1] == 'x') {
+            // hex
+            return std::stoi(num.substr(2), nullptr , 16); 
+        }else if(num.size() >=2 num[0] == '0' && num[1] == 'b') {
+            return std::stoi(num.substr(2), nullptr , 2); 
+        }else {
+            // base ten
+            return std::stoi(num);
+        }
+    }
+
+        template<Container>
+    inline std::pair<addr_t, bool> getLabelAddr(Container && symList, const std::string & value, pc_t inst) {
+        
+        for(auto r : symList){
+            if(r.ref->name == value) {
+                if(r.ref->defined) {
+                    return {r.ref->address, true};
+                }else {
+                    // undefined
+                    //TODO: Implement
+                }
+            }
+        }
+        return std::pair<addr_t, bool>(0, false);
+    }
+
+
     struct HaltF {
 
-        bool operator()(const std::string &line, AssemblingState &state, std::size_t &lineNum) {
+        bool operator()(const std::string &line, AssemblingState &state, std::size_t &lineNum, FileState & file) {
             boost::smatch result;
             if(boost::regex_match(line, result, ass::regex::halt)) {
                 Instruction i;
@@ -38,7 +70,7 @@ namespace {
     };
 
     struct AddF {
-    bool operator()(const std::string &line, AssemblingState &state, std::size_t &lineNum) {
+    bool operator()(const std::string &line, AssemblingState &state, std::size_t &lineNum, FileState & file) {
         boost::smatch result;
         if(boost::regex_match(line, result, ass::regex::arithmReg) && result[1] == "ADD") {
             try {
@@ -51,7 +83,8 @@ namespace {
                 instList.empalce_back(i);
                
             }catch(...) {
-                state << "Error: Invalid register number : " << line << '\n';
+                state << "Error: Invalid register number : " << line << '\n'
+                      << "File: " << file.name.generic_string() << '\n';
                 state.signalError()
             }
             
@@ -65,7 +98,7 @@ namespace {
 
     struct MulF {
 
-    bool operator()(const std::string &line, AssemblingState &state, std::size_t &lineNum) {
+    bool operator()(const std::string &line, AssemblingState &state, std::size_t &lineNum, FileState & file) {
         boost::smatch result;
         if(boost::regex_match(line, result, ass:regex::arithmReg) && result[1] == "MUL") {
             try {
@@ -77,7 +110,9 @@ namespace {
                 i.data = 0xE400 | unpackRegs(regs);
                 instList.empalce_back(i);
             }catch (...) {
-                state << "Error: Invalid register number line : " << line << '\n';
+                state << "Error: Invalid register number line : " << line << '\n'
+                      << "File: " << file.name.generic_string() << '\n';
+
                 state.signalError()
             }
              lineNum++;
@@ -89,7 +124,7 @@ namespace {
     };
 
     struct SubF{
-     bool operator()(const std::string &line, AssemblingState &state, std::size_t &lineNum) {
+     bool operator()(const std::string &line, AssemblingState &state, std::size_t &lineNum, FileState & file) {
         boost::smatch result;
         if(boost::match_result(line, result, ass::regex::arithmReg) && result[1] == "SUB") {
             try {
@@ -103,7 +138,8 @@ namespace {
                 instList.empalce_back(i);
 
             }catch(...) {
-                state << "Error: Invalid register number line: " << line << '\n';
+                state << "Error: Invalid register number line: " << line << '\n'
+                      << "File: " << file.name.generic_string() << '\n';
                 state.signalError();
                 
             }
@@ -118,7 +154,7 @@ namespace {
 
     struct DivF{
 
-    bool operator()(const std::string &line, AssemblingState &state, std::size_t &lineNum) {
+    bool operator()(const std::string &line, AssemblingState &state, std::size_t &lineNum, FileState & file) {
         boost::smatch result;
         if(boost::regex_match(line, result, ass::arithmReg) && result[1] == "DIV") {
             try {
@@ -130,7 +166,8 @@ namespace {
                 i.type = InstType::DIV;
                 instList.empalce_back(i);
             }catch(...) {
-                state << "Error: Invalid register number line: " << line << '\n';
+                state << "Error: Invalid register number line: " << line << '\n'
+                      << "File: " << file.name.generic_string() << '\n';
                 state.signalError();
             }
             lineNum++;
@@ -146,7 +183,7 @@ namespace {
 
 
     struct AndF {
-    bool operator()(const std::string &line, AssemblingState &state, std::size_t &lineNum) {
+    bool operator()(const std::string &line, AssemblingState &state, std::size_t &lineNum, FileState & file) {
         boost::smatch result;
         if(boost::regex_match(line, result, ass::arithmReg) && result[1] == "AND") {
             try {
@@ -159,7 +196,8 @@ namespace {
                 instList.empalce_back(i);
 
             }catc(...) {
-                state << "Error: Invalid register number line: " << line << '\n';
+                state << "Error: Invalid register number line: " << line << '\n'
+                      << "File: " << file.name.generic_string() << '\n' ;
                 state.signalError(); 
             }
             lineNum++;
@@ -171,7 +209,7 @@ namespace {
     };
 
     struct ORF {
-        bool operator()(const std::string &line, AssemblingState &state, std::size_t &lineNum) {
+        bool operator()(const std::string &line, AssemblingState &state, std::size_t &lineNum, FileState & file) {
             boost::smatch result;
             if(boost::regex_match(line, result, ass::regex::arithmReg) && result[1] == "OR") {
                 try {
@@ -183,7 +221,8 @@ namespace {
                     i.type = InstType::OR;
                     instList.empalce_back(i);
                 }catch(...) {
-                    state << "Error: Invalid register number line: " << line << '\n';
+                    state << "Error: Invalid register number line: " << line << '\n'
+                          << "File: " << file.name.generic_string() << '\n';
                     state.signalError();
                 }
                 lineNum++;
@@ -196,7 +235,7 @@ namespace {
     };
 
     struct XORF {
-        bool operator()(const std::string &line, AssemblingState &state, std::size_t &lineNum) {
+        bool operator()(const std::string &line, AssemblingState &state, std::size_t &lineNum, FileState & file) {
             boost::smatch result;
             if(boost::regex_match(line, result, ass::regex::arithmReg) && result[1] == "XOR") {
                 try {
@@ -208,7 +247,8 @@ namespace {
                     i.data = 0xEE00 | unpackRegs(regs);
                     insts.empalce_back(i);
                 }catch(...) {
-                    state << "Error: Invalid register number line: " << line << '\n';
+                    state << "Error: Invalid register number line: " << line << '\n'
+                          << "File: " << file.name.generic_string() << '\n';
                     state.signalError();
                 }
                 lineNum++;
@@ -220,7 +260,7 @@ namespace {
     };
 
     struct NOTF{
-        bool operator()(const std::string &line, AssemblingState &state, std::size_t &lineNum) {
+        bool operator()(const std::string &line, AssemblingState &state, std::size_t &lineNum, FileState & file) {
             boost::smatch result;
             if(boost::regex_match(line, result, ass::regex::notReg) && result[1] == "NOT") {
                 try {
@@ -231,10 +271,11 @@ namespace {
                     i.data = 0xF000 | (rd << 6) | (rs << 3); 
                     i.pc = instList.size();
                     i.type = InstType::NOT;
-                    state.instructions.empalce_back(i);
+                    insts.empalce_back(i);
 
                 }catch(...) {
-                    state << "Error: Invalid register number line: " << line << '\n';
+                    state << "Error: Invalid register number line: " << line << '\n'
+                          << "File: " << file.name.generic_string() << '\n';
                     state.signalError();
                 }
                 lineNum++;
@@ -246,18 +287,52 @@ namespace {
     };
 
     struct LSWF{
-        bool operator()(const std::string &line, AssemblingState &state, std::size_t &lineNum) {
+        bool operator()(const std::string &line, AssemblingState &state, std::size_t &lineNum, FileState & file) {
             boost::smatch result;
             if(boost::regex_match(line, result, ass::regex::loadStore)) {
-                Instruction i;
-                if(result[1] == "LW") {
-                    i.type = InstType::LW;
-                }else{
-                    i.type == InstType::SW;
+                try {    
+                    Instruction i;
+                    auto & insts = state.instList();
+                    if(result[1] == "LW") {
+                        i.type = InstType::LW;
+                        i.data = 0; // LW opcode                  
+                    }else{
+                        i.type == InstType::SW;
+                        i.data = 0x2000; // SW opcode
+                    }
+                    i.pc = instList.size();
+                    std::uint8_t rd = std::stoi(results[2]) & 0x07;
+                    std::uint8_t rs = std::stoi(results[3]) & 0x07;
+                    i.data |= rd << 10;
+                    i.data |= rs << 7;
+                    if(std::isdigit(result[4][0]) {
+                        // immediate is number
+                        data |= convertNumber(result[4]) & 0x07; // only 7 bits
+                    }else {
+                        // immediate is label
+                        auto ap = getLabelAddr(file.importedSyms, result[4], i.pc);
+                        if(!ap.second) {
+                            ap = getLabelAddr(file.exportedSyms, result[4], i.pc);
+                        }
+                        if(!ap.second) {
+                            ap = getLabelAddr(file.localSyms, result[4], i.pc);
+                        }
+
+                        if(!ap.second) {
+                            // create temp label
+                            SymReference dummy(std::make_shared<Sym>(file.pathm, result[4]));
+                            file.localSyms.insert(dummy);
+                            file.localDeps.insert(std::pair<SymReference, pc_t>(dummy, i.pc));
+                        }
+
+                    }
+                    
+                    insts.empalce_back(i);
+                }catch(...) {
+                    state << "Error : Invalid register number line: " << line << '\n'
+                          << "File: " << file.name.generic_string() << '\n';
+                    state.signalError();
                 }
-                i.data = 0;
-                i.pc = instList.size();
-                state.instructions.empalce_back(std::make_shared(new Instruction(i)));
                 lineNum++;
                 return true;
             }else {
@@ -267,14 +342,10 @@ namespace {
     };
 
     struct AddiF {
-        bool operator()(const std::string &line, AssemblingState &state, std::size_t &lineNum){
+        bool operator()(const std::string &line, AssemblingState &state, std::size_t &lineNum, FileState & file){
             boost::smatch result;
             if(boost::regex_match(line, result, ass::regex::arithmImm) && result[1] == "ADDI") {
-                Instruction i;
-                i.data = 0; //FIXME 
-                i.type = InstType::ADDI;
-                i.pc = instList.size();
-                state.instructions.empalce_back(std::make_shared(new Instruction(i)));
+
                 lineNum++;
                 return true;
             }else {
