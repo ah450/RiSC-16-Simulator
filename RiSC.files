@@ -15,3 +15,5 @@ src/core/tomasulo/reservation_station.cpp
 src/entry.cpp
 include/tomasulo/instruction.hpp
 include/tomasulo/rob.hpp
+include/tomasulo/reg_file.hpp
+include/tomasulo/rob_entry.hpp
