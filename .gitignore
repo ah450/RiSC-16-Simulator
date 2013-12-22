@@ -27,3 +27,4 @@ RiSC.config
 RiSC.includes
 RiSC.creator
 RiSC.creator.user
+*.autosave
