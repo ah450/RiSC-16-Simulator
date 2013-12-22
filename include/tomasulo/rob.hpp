@@ -49,11 +49,6 @@ public:
      * @return ID of newly created entry.               *
      ***************************************************/
     unsigned short create_entry();
-
-
-
-
-
 };
 
 #endif // ROB_HPP
