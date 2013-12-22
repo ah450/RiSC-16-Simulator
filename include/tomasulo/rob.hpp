@@ -46,7 +46,7 @@ public:
     /***************************************************
      * @brief Creates a new ROB Entry with a unique ID.*
      * @throws ROBException if ROB is full.            *
-     * @return ID of newly created entry.               *
+     * @return ID of newly created entry.              *
      ***************************************************/
     unsigned short create_entry();
 };
