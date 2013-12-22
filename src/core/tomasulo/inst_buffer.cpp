@@ -11,7 +11,7 @@ bool inst_buffer::insert_instruction(uint16_t inst){
 		return false;
 	}
 	else{
- 		entries.push_back(inst);
+        entries.push_back(inst);//change this
 		return true;
 	}
 }
