@@ -13,9 +13,6 @@ void ROB::tick(tomasulo &) {
 
 unsigned short ROB::create_entry(){
     if(!is_full()) {
-
-
-
         ROB_entry e;
         bool set = false;
         for(unsigned short i = 0; i < valid_ids.size(); i++) {
@@ -26,15 +23,12 @@ unsigned short ROB::create_entry(){
                 break;
             }
         }
-
-    if(set) {
-        e.is_ready = e.flush = false;
-        rob_entries.push_back(e);
-    }else {
-        throw ROBException("ROB Had no free ids.");
-    }
-
-
+        if(set) {
+            e.is_ready = e.flush = false;
+            rob_entries.push_back(e);
+        }else {
+            throw ROBException("ROB Had no free ids.");
+        }
     }else {
         throw ROBException("Tried to create a new ROB Entry while ROB already full.");
     }
