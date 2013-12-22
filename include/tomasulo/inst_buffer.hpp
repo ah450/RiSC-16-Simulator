@@ -13,6 +13,8 @@ public:
     inst_buffer(unsigned int size);
 	virtual bool insert_instruction(uint16_t instruction);
 	virtual unsigned int size();
+
+    //add a function to change the register board when issue
 };
 
 #endif

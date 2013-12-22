@@ -24,6 +24,7 @@ private:
     unsigned int destination;
     uint16_t address;
     unsigned int delay_cycles;
+    unsigned int rob_id;
 
 public:
     reservation_station(FUNCTION_UNIT fu,
@@ -34,7 +35,7 @@ public:
     void flush();
     STATE tick(tomasulo & t);
     STATE get_state(){return state;}
-    bool issue(Instruction inst);
+    bool issue(Instruction inst, unsigned int rob_id);
 };
 
 #endif
