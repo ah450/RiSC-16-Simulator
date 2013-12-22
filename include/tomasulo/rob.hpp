@@ -27,7 +27,7 @@ private:
     std::list<ROB_entry> rob_entries;
     const unsigned short number_of_entries;
     // Bitset that represents currently in use ids
-    std::bitset<std::numeric_limits<unsigned short>> valid_ids;
+    std::bitset<std::numeric_limits<unsigned short>::max()> valid_ids;
 public:
     /****************************************
      * @param number_of_entries size of ROB.*
