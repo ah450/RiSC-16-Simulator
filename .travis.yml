@@ -1,5 +1,5 @@
 before_install:
-    - sudo apt-get-repository --yes ppa:boost-latest/ppa
+    - sudo add-apt-repository --yes ppa:boost-latest/ppa
     - sudo add-apt-repository --yes ppa:ubuntu-toolchain-r/test
     - sudo apt-get update -qq
     - sudo apt-get -qq install gcc-4.8 libboost1.54-all-dev
