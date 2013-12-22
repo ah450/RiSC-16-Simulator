@@ -5,6 +5,7 @@
 #include "catch.hpp"
 #include "./tomasulo/inst_buffer.hpp"
 #include "tomasulo/reg_board.hpp"
+#include "tomasulo/adder.hpp"
 
 TEST_CASE("instruction buffer intialized correctly"){
 
@@ -49,6 +50,4 @@ TEST_CASE("registers board"){
 		rb1.record(8,200);
 		REQUIRE(rb1.retrieve(8)==200);
 	}
-
-
 }
