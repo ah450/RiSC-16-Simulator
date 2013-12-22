@@ -2,7 +2,7 @@
 #define ROB_ENTRY_HPP
 
 struct ROB_entry {
-     unsigned int id;
+     unsigned short id;
      std::uint16_t dest;
      std::uint16_t data;
      bool is_memory;
