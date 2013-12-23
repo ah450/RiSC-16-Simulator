@@ -6,7 +6,10 @@
 class inst_buffer_row{
 private:
     Instruction instruction;
-	virtual void add_inst(uint16_t instruction);
+    bool empty;
+public:
+    virtual void add_inst(uint16_t instruction);
+    virtual Instruction pop_inst();
 };
 
 #endif
