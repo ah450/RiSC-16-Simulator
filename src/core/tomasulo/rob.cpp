@@ -1,30 +1,26 @@
 #include "tomasulo/rob.hpp"
 
 
-ROB::ROB(unsigned short maxEntries):  rob_entries(), number_of_entries(maxEntries), valid_ids(){
+ROB::ROB(unsigned short size):  rob_entries(), MAX_ENTRIES(size){
 
 }
 
 void ROB::tick(tomasulo &t) {
     ROB_entry & head = rob_entries.front();
-    if(head.is_ready()) {
+    if(head.is_ready) {
         // instruction already added all of its execute and WB ticks
         t.notify_instruction_finished();
-        if(flush) {
+        if(head.flush) {
             // handle flushing
             // by clearing entire ROB
             // to flush InstructionBuffer and Reservation Stations
             t.signal_flush(head.data);
             rob_entries.clear();
             // please note that head is INVALID from this point
-            valid_ids.reset();
-            // all ids can now be reused as ROB is empty
         }else {
-            // no flushing
-            
+            // no flushing            
             if(head.is_memory){
                 // FIXME: Implement when Memory header is available
-
             }else {
                 // don't overwrite R0
                 if(head.dest != 0) {
@@ -32,8 +28,6 @@ void ROB::tick(tomasulo &t) {
                     t.get_reg_file().regs[head.dest] = head.data;
                 }
             }
-            // id can now be re-used
-            valid_ids.reset(head.id);
             // remove head from ROB
             rob_entries.pop_front(); 
         }
@@ -45,24 +39,17 @@ void ROB::tick(tomasulo &t) {
 
 
 unsigned short ROB::create_entry(){
-    if(!is_full()) {
+   if(!is_full()) {
         ROB_entry e;
-        bool set = false;
-        for(unsigned short i = 0; i < valid_ids.size(); i++) {
-            //get first empty id
-            if(valid_ids.test(i)) {
-                e.id = i;
-                set = true;
-                break;
-            }
-        }
-        if(set) {
-            e.is_ready = e.flush = false;
-            rob_entries.push_back(e);
+        e.is_ready=e.flush = false;
+        if(rob_entries.empty()) {
+            e.id = 0;
         }else {
-            throw ROBException("ROB Had no free ids.");
+            e.id = rob_entries.back().id + 1;            
         }
+        rob_entries.push_back(e);
     }else {
         throw ROBException("Tried to create a new ROB Entry while ROB already full.");
     }
 }
+
