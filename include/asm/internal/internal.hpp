@@ -1,132 +1,19 @@
 #include "asm/assembler.hpp"
 #include "asm/internal/regex.hpp"
-#include <boost/filesystem/fstream.hpp>
-#include <boost/algorithm/string.hpp>
-#include <unordered_map>
-#include <algorithm>
-#include <iterator>
-#include <cstdint>
-#include <utility>
-#include <string>
-#include <memory>
-#include <list>
-#include <set>
+#include "asm/internal/typedefs.hpp"
+#include "asm/internal/sym.hpp"
+#include "asm/internal/sym_reference.hpp"
+#include "asm/internal/instruction.hpp"
+#include "asm/internal/file_state.hpp"
+#include "asm/internal/assembling_state.hpp"
+#include <boost/filesystem.hpp>
 
 namespace ass { namespace internal {
 
 
 namespace bfs = boost::filesystem;
 
-typedef std::uint16_t addr_t;
-typedef std::uint16_t pc_t;
-typedef std::pair<std::unique_ptr<bfs::ifstream>, bfs::path> file_path_pair_t;
-typedef std::vector<file_path_pair_t> ifvector_t;
 
-enum class SymType {PTR, DATA};
-enum class InstType {LW, SW, ADDI, JMP, LI, JALR, JALI, ADD, SUB, MUL,
-                    DIV, HALT, AND, OR, XOR, NOT, RET, BEQ, BNE, BGT, BGE, BLT, BLE};
-
-struct Sym : std::enable_shared_from_this<Sym>{
-    bool defined;
-    bool global;
-    addr_t address;
-    SymType type;
-    std::string name;
-    bfs::path file;
-    std::size_t lineNum;
-    // undefined symbol
-    Sym(bfs::path file, cosnt std::string & name);
-    Sym(bool defined, bool global, const std::string &name,
-        bfs::path file, std::size_t lineNum,  addr_t value, SymType type);
-    bool operator==(const Sym &other) const {
-        return (file == other.file) && (name == other.name);
-    }
-    bool operator<(const Sym & other) const {
-        return (file.generic_string() +  name ) < (other.file.generic_string() + other.name);
-    }
-
-};
-
-struct SymReference {
-    std::shared_ptr<Sym> ref;
-    SymReference(std::shared_ptr<Sym> &&ref) : ref(ref) {}
-    bool operator==(const SymReference &other) const {
-        return *ref == *(other.ref);
-    }
-    bool operator<(const SymReference & other) {
-        return *ref  < *(other.ref);
-    }
-};
-
-
-struct Instruction {
-    std::uint16_t pc;
-    std::uint16_t data;
-    InstType type;    
-};
-
-}} // end namespace ass internal
-
-namespace std {
-    // std::hash overload for ass::internal::SymReference
-    template<>
-    struct hash<ass::internal::SymReference S> {
-    public:
-        std::size_t operator()(S const& s) const {
-            return std::hash<std::hash<std::string>()(s.ref->name);
-        }
-    };
-} // end std overload
-
-namespace ass { namespace internal {
-
-struct FileState {
-    std::set<SymReference> importedSyms;
-    std::set<SymReference> exportedSyms;
-    std::set<SymReference> localSyms;
-    std::multimap<SymReference, pc_t> localDeps;
-    bfs::path name;
-    FileState(const std::string name);
-};
-
-
-class AssemblingStatus {
-    bool error, originDefined;  
-    addr_t origin;
-    std::shared_ptr<ILogger> logger;
-    std::unordered_map<bfs::path, FileState> files;
-    std::list<Instruction> insts;
-    std::set<SymReference> allReferences;
-    std::multimap<SymReference, pc_t> dependencies;
-public:
-    AssemblingStatus(std::shared_ptr<ILogger> logger);
-    std::FileState & getState(const bfs::path & path) {
-        if(files.count(path) == 0){
-            files.emplace(std::make_pair(path, FileState(path)));
-        }
-        return files[path];
-    }
-
-    std::multi_map<SymReference, std::size_t> & deps() { return dependencies;};
-    std::set<SymReference> & syms() { return allReferences;}
-    std::list<instructions> insts & instList() {return insts};
-
-    void defineOrigin(const addr_t &addr) {
-        if(!originDefined){
-            originDefined = true;
-            origin = addr;
-        }else {
-            // defined multiple times
-            error = true;
-        }
-    }
-
-    template<typename T>
-    AssemblingStatus & operator<<(T&& t) {*logger << t; return *this;}
-
-    void signalError() { error = true;}
-
-};
 
 extern const addr_t DEFAULT_ORIGIN;
 

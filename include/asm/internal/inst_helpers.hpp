@@ -6,7 +6,7 @@
 
 //TODO:GENERATE OPCODES
 namespace {
-        using namespace ass::internal;
+    using namespace ass::internal;
     typedef std::function<bool(const std::string &, AssemblingState &, std::size_t&, FileState&) instFunct_t;
 
 
