@@ -35,7 +35,9 @@ inline void fillInstruction(Instruction &i, addr_t value) {
         case InstType::SW :
             i.data |= 0x7F & value;
             break;
-
+        case InstType::JMP :
+            i.date |= 0x3FF & value;
+            break;
     }
 }
 
@@ -62,9 +64,10 @@ inline void fillInstruction(Instruction &i, addr_t value) {
 inline void resolveLabel(const std::string & name, AssemblingStatus &state, FileState &tu,
                 const std::size_t lineNum, Instruction & i){
 
-
+    bool filled = false;
     for (auto & ref : tu.importedSyms){
         if(ref.ref->name() == name) {
+            filled = true;
            if(ref.ref->defined()) {
                 fillInstruction(i, ref.ref->value());
            }else {
@@ -72,32 +75,37 @@ inline void resolveLabel(const std::string & name, AssemblingStatus &state, File
            }
         }
     }
-
-     for (auto & ref : tu.exportedSyms){
-        if(ref.ref->name() == name) {
-           if(ref.ref->defined()) {
-                fillInstruction(i, ref.ref->value());
-           }else {
-                tu.localDeps.insert(std::pair<SymReference, pc_t>(ref, i.pc));
-           }
+    if(!filled) {
+        for (auto & ref : tu.exportedSyms){
+            if(ref.ref->name() == name) {
+               filled = true;
+               if(ref.ref->defined()) {
+                    fillInstruction(i, ref.ref->value());
+               }else {
+                    tu.localDeps.insert(std::pair<SymReference, pc_t>(ref, i.pc));
+               }
+            }
         }
     }
-
-     for (auto & ref : tu.localSyms){
-        if(ref.ref->name() == name) {
-           if(ref.ref->defined()) {
-                fillInstruction(i, ref.ref->value());
-           }else {
-                tu.localDeps.insert(std::pair<SymReference, pc_t>(ref, i.pc));
-           }
+    if(!filled) {
+        for (auto & ref : tu.localSyms){
+            if(ref.ref->name() == name) {
+                filled = true;
+               if(ref.ref->defined()) {
+                    fillInstruction(i, ref.ref->value());
+               }else {
+                    tu.localDeps.insert(std::pair<SymReference, pc_t>(ref, i.pc));
+               }
+            }
         }
     }
-
-    // if execution reached this point then it hasn't been defined / forward declared before
-    // non global forward declaration
-    auto sr = SymReference(std::make_shared<Sym>(name, false));
-    tu.localSyms.insert(sr);
-    tu.localDeps.insert(std::pair<SymReference,pc_t>(sr, i.pc));
+    if(!filled) {
+        // if execution reached this point then it hasn't been defined / forward declared before
+        // non global forward declaration
+        auto sr = SymReference(std::make_shared<Sym>(name, false));
+        tu.localSyms.insert(sr);
+        tu.localDeps.insert(std::pair<SymReference,pc_t>(sr, i.pc));
+    }
 }
 
 }}

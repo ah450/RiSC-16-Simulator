@@ -71,5 +71,62 @@ struct AddiF {
         std::size_t &lineNum, FileState & file);
 };
 
+// unimplemented 
+struct JMPF {
+    bool operator()(const std::string &line, AssemblingStatus &state, 
+        std::size_t &lineNum, FileState & file);
+};
+struct LIF {
+    bool operator()(const std::string &line, AssemblingStatus &state, 
+        std::size_t &lineNum, FileState & file);
+};
+
+struct JALRF {
+    bool operator()(const std::string &line, AssemblingStatus &state, 
+        std::size_t &lineNum, FileState & file);
+};
+
+struct JALIF {
+    bool operator()(const std::string &line, AssemblingStatus &state, 
+        std::size_t &lineNum, FileState & file);
+};
+
+
+
+struct RETF {
+    bool operator()(const std::string &line, AssemblingStatus &state, 
+        std::size_t &lineNum, FileState & file);
+};
+
+struct BEQ {
+    bool operator()(const std::string &line, AssemblingStatus &state, 
+        std::size_t &lineNum, FileState & file);
+};
+
+struct BNE {
+    bool operator()(const std::string &line, AssemblingStatus &state, 
+        std::size_t &lineNum, FileState & file);
+};
+
+struct BGT {
+    bool operator()(const std::string &line, AssemblingStatus &state, 
+        std::size_t &lineNum, FileState & file);
+};
+
+struct BLT {
+    bool operator()(const std::string &line, AssemblingStatus &state, 
+        std::size_t &lineNum, FileState & file);
+};
+
+struct BGE {
+    bool operator()(const std::string &line, AssemblingStatus &state, 
+        std::size_t &lineNum, FileState & file);
+};
+
+struct BLE {
+    bool operator()(const std::string &line, AssemblingStatus &state, 
+        std::size_t &lineNum, FileState & file);
+};
+
 
 }}

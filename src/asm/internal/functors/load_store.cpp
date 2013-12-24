@@ -6,7 +6,6 @@ bool ass::internal::LSWF::operator()(const std::string &line, AssemblingStatus &
                         std::size_t &lineNum, FileState & file) {
     boost::smatch result;
     if(boost::regex_match(line, result, ass::regex::loadStore)) {
-        bool ok = true;
         try {    
             Instruction i;
             auto & insts = state.instList();
