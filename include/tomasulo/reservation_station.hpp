@@ -1,8 +1,8 @@
 #ifndef RESERVATION_STATION_H
 #define RESERVATION_STATION_H
 #include <stdint.h>
-#include <bitset>
 #include "instruction.hpp"
+#include <array>
 
 enum class FUNCTION_UNIT{
     ADD, MULL, LOAD, BRANCH, LOGIC //LI is in ADD FU.
@@ -26,6 +26,11 @@ private:
     unsigned int delay_cycles;
     unsigned short rob_id;
 
+    //member functions
+    //used to get operands directly from the instruction
+    std::array<uint16_t, 3> get_operands(FUNCTION_UNIT fu, Instruction inst);
+
+
 public:
     reservation_station(FUNCTION_UNIT fu,
         unsigned int delay);
@@ -35,7 +40,7 @@ public:
     void flush();
     STATE tick(tomasulo & t);
     STATE get_state(){return state;}
-    bool issue(Instruction inst, unsigned short rob_id);
+    bool issue(Instruction inst, unsigned short rob_id, tomasulo & t);
 };
 
 #endif
