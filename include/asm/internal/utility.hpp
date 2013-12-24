@@ -1,5 +1,6 @@
 #pragma once 
 #include "asm/internal/internal.hpp"
+#include <utility>
 
 namespace ass { namespace internal {
 inline std::tuple<std::uint8_t, std::uint8_t, std::uint8_t> getRegsFromArithm(boost::smatch &m) {
@@ -44,7 +45,7 @@ inline void resolveLabelHelper(SymReference &sr, AssemblineState &state, FileSta
     if(sr.ref->defined()) {
         fillInstricion(i, sr.ref->value());
     }else {
-
+        tu.localDeps.insert(std::pair<SymReference, pc_t>(sr, i.pc));
     }
 
 }
@@ -72,21 +73,21 @@ inline bool resolveLabel(const std::string & name, AssemblingState &state, FileS
                 const std::size_t lineNum, Instruction & i){
 
 
-    for (auto & ref : state.importedSyms){
+    for (auto & ref : tu.importedSyms){
         if(ref.ref->name() == name) {
             resolveLabelHelper(ref, state, tu, lineNum, i );
             return true;
         }
     }
 
-     for (auto & ref : state.exportedSyms){
+     for (auto & ref : tu.exportedSyms){
         if(ref.ref->name() == name) {
             resolveLabelHelper(ref, state, tu, lineNum, i );
             return true;
         }
     }
 
-     for (auto & ref : state.localSyms){
+     for (auto & ref : tu.localSyms){
         if(ref.ref->name() == name) {
             resolveLabelHelper(ref, state, tu, lineNum, i );
             return true;
@@ -94,8 +95,10 @@ inline bool resolveLabel(const std::string & name, AssemblingState &state, FileS
     }
 
     // if execution reached this point then it hasn't been defined / forward declared before
-
-
+    // non global forward declaration
+    auto sr = SymReference(std::make_shared<Sym>(name, false));
+    tu.localSyms.insert(sr);
+    tu.localDeps.insert(std::pair<SymReference,pc_t>(sr, i.pc));
 }
 
 }}
