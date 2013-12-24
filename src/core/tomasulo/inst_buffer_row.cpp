@@ -4,12 +4,15 @@
 #include "../../../include/tomasulo/instruction.hpp"
 using uint = std::uint32_t;
 
-void inst_buffer_row::add_inst(uint16_t inst){
+void inst_buffer_row::inst_buffer_row(uint16_t inst){
     instruction = Instruction {inst};
-    empty = false;
 }
 
-Instruction inst_buffer_row::pop_inst(){
-    return Instruction;
-    empty = true;
+bool inst_buffer::issue(tomasulo &t){
+	OP = instruction.get_type();
+ 	if (/* empty reservation station & !rob.is_full() */){
+		/* fill rob then reservation*/
+		return true;
+ 	   }   
+ 	   	return false;
 }
