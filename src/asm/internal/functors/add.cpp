@@ -1,7 +1,7 @@
 #include "ass/internal/inst_helpers.hpp"
 
 
-bool ass::internal::AddF::operator()(const std::string &line, AssemblingState &state,
+bool ass::internal::AddF::operator()(const std::string &line, AssemblingStatus &state,
                      std::size_t &lineNum, FileState & file) {
     boost::smatch result;
     if(boost::regex_match(line, result, ass::regex::arithmReg) && result[1] == "ADD") {

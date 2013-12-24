@@ -30,10 +30,11 @@ void ass::internal::setOrigin(const ifvector_t &files, AssemblingStatus &state) 
 
 
 bool ass::internal::tryExport(file_path_pair_t &file, AssemblingStatus &state, std::size_t &lineNum) {
-
+    return true;
 }
 
 bool ass::internal::tryGlobal(file_path_pair_t &file, AssemblingStatus &state, std::size_t &lineNum) {
+    return true;
    
 }
 

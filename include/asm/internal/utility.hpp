@@ -4,21 +4,21 @@
 
 namespace ass { namespace internal {
 inline std::tuple<std::uint8_t, std::uint8_t, std::uint8_t> getRegsFromArithm(boost::smatch &m) {
-        std::uint8_t rd = std::stoi(m[2].substr(1)) & 0x07;
-        std::uint8_t rs = std::stoi(m[3].substr(1)) & 0x07;
-        std::uint8_t rt = std::stoi(m[4].substr(1)) & 0x07;
+        std::uint8_t rd = std::stoi(std::string(m[2]).substr(1)) & 0x07;
+        std::uint8_t rs = std::stoi(std::string(m[3]).substr(1)) & 0x07;
+        std::uint8_t rt = std::stoi(std::string(m[4]).substr(1)) & 0x07;
         return std::make_tuple(rd, rs, rt); 
     }
 inline std::uint16_t unpackRegs(std::tuple<std::uint8_t, std::uint8_t, std::uint8_t> &regs) {
-    return (regs.get<0>() << 6) | (regs.get<1>() << 3) | regs.get<2>();
+    return (std::get<0>(regs) << 6) | (std::get<1>(regs) << 3) | std::get<2>(regs);
 }   
 
 inline std::uint16_t convertNumber(const std::string &num) {
 
-    if(num.size() >=2 num[0] == '0' && num[1] == 'x') {
+    if( (num.size() >=2) && (num[0] == '0') && (num[1] == 'x')) {
         // hex
         return std::stoi(num.substr(2), nullptr , 16); 
-    }else if(num.size() >=2 num[0] == '0' && num[1] == 'b') {
+    }else if((num.size() >=2) && (num[0] == '0') && (num[1] == 'b')) {
         return std::stoi(num.substr(2), nullptr , 2); 
     }else {
         // base ten
@@ -59,7 +59,7 @@ inline void fillInstruction(Instruction &i, addr_t value) {
  * @param i instruction referencing the label.
  * @return true if succesfull.
  */
-inline void resolveLabel(const std::string & name, AssemblingState &state, FileState &tu,
+inline void resolveLabel(const std::string & name, AssemblingStatus &state, FileState &tu,
                 const std::size_t lineNum, Instruction & i){
 
 
@@ -68,7 +68,7 @@ inline void resolveLabel(const std::string & name, AssemblingState &state, FileS
            if(ref.ref->defined()) {
                 fillInstruction(i, ref.ref->value());
            }else {
-                state.deps.insert(std::pair<SymReference, pc_t>(ref, i.pc));
+                state.deps().insert(std::pair<SymReference, pc_t>(ref, i.pc));
            }
         }
     }

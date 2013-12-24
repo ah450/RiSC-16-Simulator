@@ -2,7 +2,7 @@
 
 
 
-bool ass::internal::DivF::operator()(const std::string &line, AssemblingState &state, 
+bool ass::internal::DivF::operator()(const std::string &line, AssemblingStatus &state, 
                 std::size_t &lineNum, FileState & file) {
     boost::smatch result;
     if(boost::regex_match(line, result, ass::arithmReg) && result[1] == "DIV") {

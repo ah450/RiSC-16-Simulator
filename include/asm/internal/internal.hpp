@@ -1,3 +1,4 @@
+#pragma once
 #include "asm/assembler.hpp"
 #include "asm/internal/regex.hpp"
 #include "asm/internal/typedefs.hpp"
@@ -32,7 +33,7 @@ inline std::string removeComments(const std::string &line) {
  * updates state accordingly. default origin if none found is ass::internal::DEFAULT_ORIGIN
  * 
  * @param files vector of pairs of files and paths
- * @param state AssemblingState to update.
+ * @param state AssemblingStatus to update.
  */
 void setOrigin(const ifvector_t &files, AssemblingStatus &state);
 /**

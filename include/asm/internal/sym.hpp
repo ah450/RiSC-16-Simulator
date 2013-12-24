@@ -1,6 +1,7 @@
 #pragma once
 #include "asm/internal/typedefs.hpp"
 #include <boost/filesystem.hpp>
+#include <boost/algorithm/string.hpp>
 #include <stdexcept>
 #include <string>
 
@@ -15,7 +16,7 @@ struct SymException : std::runtime_error {
     SymException(SymException &&) = default;
 };
 
-class Sym : std::enable_shared_from_this<Sym>{
+class Sym : public std::enable_shared_from_this<Sym>{
     bool defined_, global_;
     addr_t address_;
     SymType type_;

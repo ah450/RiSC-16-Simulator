@@ -1,7 +1,7 @@
 #include "asm/internal/inst_helpers.hpp"
 
 
-bool ass::internal::SubF::operator()(const std::string &line, AssemblingState &state, 
+bool ass::internal::SubF::operator()(const std::string &line, AssemblingStatus &state, 
     std::size_t &lineNum, FileState & file) {
 
     boost::smatch result;

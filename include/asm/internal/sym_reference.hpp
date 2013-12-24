@@ -14,7 +14,7 @@ struct SymReference {
     bool operator==(const SymReference &other) const {
         return *ref == *(other.ref);
     }
-    bool operator<(const SymReference & other) {
+    bool operator<(const SymReference & other) const {
         return *ref  < *(other.ref);
     }
     
