@@ -221,7 +221,7 @@ std::uint16_t Instruction::get_branch_addr(tomasulo & t){
                 InstructionException("REGS[0] cannot be accessed");        
             }
             reg_content = t.regFile.regs[reg];
-            predicted_addr = reg_content + pc + 1;
+            predicted_addr = reg_content;
             break;
         default:
             InstructionException("Error while computing branch address");
