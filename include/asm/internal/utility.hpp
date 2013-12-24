@@ -39,16 +39,6 @@ inline void fillInstruction(Instruction &i, addr_t value) {
     }
 }
 
-inline void resolveLabelHelper(SymReference &sr, AssemblineState &state, FileState &tu,
-             const std::size_t lineNum, Instruction &i ) {
-
-    if(sr.ref->defined()) {
-        fillInstricion(i, sr.ref->value());
-    }else {
-        tu.localDeps.insert(std::pair<SymReference, pc_t>(sr, i.pc));
-    }
-
-}
 /**
  * @brief Attempts to resolve a label reference.
  * @details Checks the imported , exported and local Syms
@@ -69,28 +59,37 @@ inline void resolveLabelHelper(SymReference &sr, AssemblineState &state, FileSta
  * @param i instruction referencing the label.
  * @return true if succesfull.
  */
-inline bool resolveLabel(const std::string & name, AssemblingState &state, FileState &tu,
+inline void resolveLabel(const std::string & name, AssemblingState &state, FileState &tu,
                 const std::size_t lineNum, Instruction & i){
 
 
     for (auto & ref : tu.importedSyms){
         if(ref.ref->name() == name) {
-            resolveLabelHelper(ref, state, tu, lineNum, i );
-            return true;
+           if(ref.ref->defined()) {
+                fillInstruction(i, ref.ref->value());
+           }else {
+                state.deps.insert(std::pair<SymReference, pc_t>(ref, i.pc));
+           }
         }
     }
 
      for (auto & ref : tu.exportedSyms){
         if(ref.ref->name() == name) {
-            resolveLabelHelper(ref, state, tu, lineNum, i );
-            return true;
+           if(ref.ref->defined()) {
+                fillInstruction(i, ref.ref->value());
+           }else {
+                tu.localDeps.insert(std::pair<SymReference, pc_t>(ref, i.pc));
+           }
         }
     }
 
      for (auto & ref : tu.localSyms){
         if(ref.ref->name() == name) {
-            resolveLabelHelper(ref, state, tu, lineNum, i );
-            return true;
+           if(ref.ref->defined()) {
+                fillInstruction(i, ref.ref->value());
+           }else {
+                tu.localDeps.insert(std::pair<SymReference, pc_t>(ref, i.pc));
+           }
         }
     }
 

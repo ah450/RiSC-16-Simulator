@@ -45,11 +45,11 @@ bool ass::internal::LSWF::operator()(const std::string &line, AssemblingState &s
                 /*****************
                  * Resolve Label *
                  *****************/ 
-                 ok = resolveLabel(result[4], state, file, lineNum, i);
+                 resolveLabel(result[4], state, file, lineNum, i);
             }
             
             insts.empalce_back(i);
-            return ok;
+            return true;
         }catch(...) {
             state << "Error : Invalid register number line: " << line << '\n'
                   << "File: " << file.name.generic_string() << '\n';
