@@ -1,7 +1,7 @@
 #include "asm/internal/internal.hpp"
 
+using namespace ass;
 using namespace ass::internal;
-
 
 
 bool ass::assemble(const std::vector<bfs::path> &sources, const bfs::path &out, ILogger *l){

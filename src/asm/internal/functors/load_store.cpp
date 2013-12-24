@@ -6,6 +6,7 @@ bool ass::internal::LSWF::operator()(const std::string &line, AssemblingState &s
                         std::size_t &lineNum, FileState & file) {
     boost::smatch result;
     if(boost::regex_match(line, result, ass::regex::loadStore)) {
+        bool ok = true;
         try {    
             Instruction i;
             auto & insts = state.instList();
@@ -44,11 +45,11 @@ bool ass::internal::LSWF::operator()(const std::string &line, AssemblingState &s
                 /*****************
                  * Resolve Label *
                  *****************/ 
-                bool ok = resolveLabel(result[4], state, file, lineNum, i);
-
+                 ok = resolveLabel(result[4], state, file, lineNum, i);
             }
             
             insts.empalce_back(i);
+            return ok;
         }catch(...) {
             state << "Error : Invalid register number line: " << line << '\n'
                   << "File: " << file.name.generic_string() << '\n';
