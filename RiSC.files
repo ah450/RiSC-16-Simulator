@@ -17,3 +17,5 @@ include/tomasulo/instruction.hpp
 include/tomasulo/rob.hpp
 include/tomasulo/reg_file.hpp
 include/tomasulo/rob_entry.hpp
+src/core/tomasulo/rob.cpp
+src/core/tomasulo/instruction.cpp
