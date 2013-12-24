@@ -14,7 +14,7 @@ struct FileState {
     std::set<SymReference> localSyms;
     std::multimap<SymReference, pc_t> localDeps;
     bfs::path name;
-    FileState(const std::string name);
+    FileState(const bfs::path &name);
 };
 
 }}
