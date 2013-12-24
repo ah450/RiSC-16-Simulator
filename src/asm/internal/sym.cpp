@@ -1,6 +1,7 @@
 #include "asm/internal/sym.hpp"
 
 
+const ass::internal::bfs::path ass::internal::Sym::GLOBAL_FILE("GLOBAL");
 
 ass::internal::Sym::Sym(const std::string & name, bool global) : defined_(false), global_(global), name_(name) {
     if(global_) {

@@ -6,12 +6,12 @@ bool ass::internal::ORF::operator()(const std::string &line, AssemblingStatus &s
     if(boost::regex_match(line, result, ass::regex::arithmReg) && result[1] == "OR") {
         try {
             auto regs = getRegsFromArithm(result);
-            auto instList & = state.insts();
+            auto & instList = state.instList();
             Instruction i;
             i.data = 0xEC00 | unpackRegs(regs);
             i.pc = instList.size();
             i.type = InstType::OR;
-            instList.empalce_back(i);
+            instList.emplace_back(i);
         }catch(...) {
             state << "Error: Invalid register number line: " << line << '\n'
                   << "File: " << file.name.generic_string() << '\n';

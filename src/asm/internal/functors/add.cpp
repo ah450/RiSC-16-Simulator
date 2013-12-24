@@ -1,4 +1,4 @@
-#include "ass/internal/inst_helpers.hpp"
+#include "asm/internal/inst_helpers.hpp"
 
 
 bool ass::internal::AddF::operator()(const std::string &line, AssemblingStatus &state,
@@ -7,7 +7,7 @@ bool ass::internal::AddF::operator()(const std::string &line, AssemblingStatus &
     if(boost::regex_match(line, result, ass::regex::arithmReg) && result[1] == "ADD") {
         try {
             auto regs = getRegsFromArithm(result);
-            auto instList & = state.insts();
+            auto & instList = state.instList();
             Instruction i;
             i.type = InstType::ADD;
             i.pc = instList.size();
@@ -17,7 +17,7 @@ bool ass::internal::AddF::operator()(const std::string &line, AssemblingStatus &
         }catch(...) {
             state << "Error: Invalid register number : " << line << '\n'
                   << "File: " << file.name.generic_string() << '\n';
-            state.signalError()
+            state.signalError();
         }
         
         lineNum++;

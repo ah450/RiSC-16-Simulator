@@ -7,7 +7,7 @@ files = Split('regex/regex assembler internal/directives internal/inst_label int
                 'internal/assembling_state internal/functors/add internal/functors/and ' + 
                 'internal/functors/div internal/functors/halt internal/functors/load_store ' +
                 'internal/functors/mul internal/functors/not internal/functors/or ' +
-                'internal/functors/sub internal/functors/sub internal/functors/xor')
+                'internal/functors/sub internal/functors/xor')
 
 objs = make_objs(files, tag, env)
 Return('objs')

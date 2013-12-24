@@ -420,7 +420,7 @@ TEST_CASE("Uncoditional branch instruction parsing", "[regex]") {
             REQUIRE(result[3] == "22");
         }
         SECTION("LABLE") {
-            std::string test("JML R5, hello");
+            std::string test("JMP R5, hello");
             REQUIRE(boost::regex_match(test, result, ass::regex::jmp));
             REQUIRE(result[1] == "JMP");
             REQUIRE(result[2] == "R5");

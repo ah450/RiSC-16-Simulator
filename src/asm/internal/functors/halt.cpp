@@ -1,4 +1,4 @@
-#include "ass/internal/inst_helpers.hpp"
+#include "asm/internal/inst_helpers.hpp"
 
 
 
@@ -7,7 +7,7 @@ bool ass::internal::HaltF::operator()(const std::string &line, AssemblingStatus 
     boost::smatch result;
     if(boost::regex_match(line, result, ass::regex::halt)) {
         Instruction i;
-        auto instList & = state.insts();
+        auto & instList = state.instList();
         i.type = InstType::HALT;
         i.pc = instList.size();
         i.data = 0xE800;

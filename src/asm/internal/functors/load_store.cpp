@@ -17,29 +17,29 @@ bool ass::internal::LSWF::operator()(const std::string &line, AssemblingStatus &
                 i.type = InstType::LW;
                 i.data = 0; // LW opcode                  
             }else{
-                i.type == InstType::SW;
+                i.type = InstType::SW;
                 i.data = 0x2000; // SW opcode
             }
 
-            i.pc = instList.size();
+            i.pc = insts.size();
 
             /*******************
              * SET RD and RS   *
              *******************/
 
-            std::uint8_t rd = std::stoi(results[2]) & 0x07;
-            std::uint8_t rs = std::stoi(results[3]) & 0x07;
+            std::uint8_t rd = std::stoi(result[2]) & 0x07;
+            std::uint8_t rs = std::stoi(result[3]) & 0x07;
 
             i.data |= rd << 10;
             i.data |= rs << 7;
 
 
-            if(std::isdigit(result[4][0]) {
+            if(std::isdigit(std::string(result[4])[0]) ) {
                 /**********************************
                  * Labels Don't start with numbers*
                  **********************************/
 
-                data |= convertNumber(result[4]) & 0x07; // only 7 bits
+                i.data |= convertNumber(result[4]) & 0x07; // only 7 bits
             }else {
                 
                 /*****************
@@ -48,7 +48,7 @@ bool ass::internal::LSWF::operator()(const std::string &line, AssemblingStatus &
                  resolveLabel(result[4], state, file, lineNum, i);
             }
             
-            insts.empalce_back(i);
+            insts.emplace_back(i);
             return true;
         }catch(...) {
             state << "Error : Invalid register number line: " << line << '\n'

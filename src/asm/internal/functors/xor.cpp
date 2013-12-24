@@ -11,7 +11,7 @@ bool ass::internal::XORF::operator()(const std::string &line, AssemblingStatus &
             i.type = InstType::XOR;
             i.pc = insts.size();
             i.data = 0xEE00 | unpackRegs(regs);
-            insts.empalce_back(i);
+            insts.emplace_back(i);
         }catch(...) {
             state << "Error: Invalid register number line: " << line << '\n'
                   << "File: " << file.name.generic_string() << '\n';
