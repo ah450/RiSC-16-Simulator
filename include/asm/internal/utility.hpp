@@ -10,7 +10,7 @@ inline std::tuple<std::uint8_t, std::uint8_t, std::uint8_t> getRegsFromArithm(bo
     }
 inline std::uint16_t unpackRegs(std::tuple<std::uint8_t, std::uint8_t, std::uint8_t> &regs) {
     return (regs.get<0>() << 6) | (regs.get<1>() << 3) | regs.get<2>();
-}
+}   
 
 inline std::uint16_t convertNumber(const std::string &num) {
 
@@ -28,9 +28,24 @@ inline std::uint16_t convertNumber(const std::string &num) {
 
 
 
+inline void fillInstruction(Instruction &i, addr_t value) {
+    switch(i.type){
+        case InstType::LW :
+        case InstType::SW :
+            i.data |= 0x7F & value;
+            break;
+
+    }
+}
+
 inline void resolveLabelHelper(SymReference &sr, AssemblineState &state, FileState &tu,
              const std::size_t lineNum, Instruction &i ) {
 
+    if(sr.ref->defined()) {
+        fillInstricion(i, sr.ref->value());
+    }else {
+
+    }
 
 }
 /**
@@ -44,7 +59,7 @@ inline void resolveLabelHelper(SymReference &sr, AssemblineState &state, FileSta
  * a global dependency is added.
  * Note: It will not add a global dependency if it was not previously
  * imported.
- * 
+ * Note2: instruction pc MUST be set 
  * 
  * @param name label name.
  * @param state global state.
@@ -58,19 +73,27 @@ inline bool resolveLabel(const std::string & name, AssemblingState &state, FileS
 
 
     for (auto & ref : state.importedSyms){
-        if(ref.ref.name() == name) {
+        if(ref.ref->name() == name) {
             resolveLabelHelper(ref, state, tu, lineNum, i );
             return true;
         }
     }
 
      for (auto & ref : state.exportedSyms){
-        if(ref.ref.name() == name) {
+        if(ref.ref->name() == name) {
             resolveLabelHelper(ref, state, tu, lineNum, i );
             return true;
         }
     }
 
+     for (auto & ref : state.localSyms){
+        if(ref.ref->name() == name) {
+            resolveLabelHelper(ref, state, tu, lineNum, i );
+            return true;
+        }
+    }
+
+    // if execution reached this point then it hasn't been defined / forward declared before
 
 
 }

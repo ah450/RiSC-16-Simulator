@@ -11,6 +11,8 @@ enum class SymType {PTR, DATA};
 
 struct SymException : std::runtime_error {
     SymException(const std::string &what): std::runtime_error(what){}
+    SymException(const SymException &) = default;
+    SymException(SymException &&) = default;
 };
 
 class Sym : std::enable_shared_from_this<Sym>{
