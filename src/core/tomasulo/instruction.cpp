@@ -1,4 +1,4 @@
-#include "../../include/tomasulo/instruction.hpp"
+#include "tomasulo/instruction.hpp"
 
 OP Instruction::get_type(){
     uint16_t offset4 = (binary >> 9) & 15;
@@ -138,18 +138,21 @@ std::uint8_t Instruction::get_operand(const uint8_t index){
 }
 
 std::uint16_t Instruction::get_immediate(){
-    uint16_t offset4 = (binary >> 9) & 15;
     uint16_t offset3= (binary >> 13) & 7;
     uint16_t result;
     if(offset3 != 7){
         result = binary & 127;
         if(offset3 == 3 || offset3 == 4 || offset3 == 6){
-            result = binary && 1023;
+            result = binary & 1023;
+        }
+        else{
+            result = binary & 127;
         }
     }
     else{
         InstructionException("Instruction requested has no immediate value");
     }
+    return result;
 }
 
 
