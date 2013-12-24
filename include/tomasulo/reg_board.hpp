@@ -10,7 +10,6 @@ private:
     std::array<unsigned short, 7> producer;
 
 public:
-	reg_board();
 	bool used(unsigned int reg) {
         return used.test(reg);
     }
