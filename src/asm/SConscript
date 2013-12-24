@@ -4,7 +4,10 @@ def make_objs(file_list, suffix, enviroment) :
     return [ enviroment.Object(file + '-' + suffix + '.o', file + '.cpp' ) for file in file_list ]
 
 files = Split('regex/regex assembler internal/directives internal/inst_label internal/sym internal/file_state ' +
-                'internal/assembling_state')
+                'internal/assembling_state internal/functors/add internal/functors/and ' + 
+                'internal/functors/div internal/functors/halt internal/functors/load_store ' +
+                'internal/functors/mul internal/functors/not internal/functors/or ' +
+                'internal/functors/sub internal/functors/sub internal/functors/xor')
 
 objs = make_objs(files, tag, env)
 Return('objs')
