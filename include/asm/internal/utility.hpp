@@ -36,7 +36,7 @@ inline void fillInstruction(Instruction &i, addr_t value) {
             i.data |= 0x7F & value;
             break;
         case InstType::JMP :
-            i.date |= 0x3FF & value;
+            i.date |= ( (0x3FF & value) - (i.pc + 1) ) & 0x03FF;
             break;
     }
 }

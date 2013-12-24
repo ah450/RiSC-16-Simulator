@@ -71,11 +71,13 @@ struct AddiF {
         std::size_t &lineNum, FileState & file);
 };
 
-// unimplemented 
+
 struct JMPF {
     bool operator()(const std::string &line, AssemblingStatus &state, 
         std::size_t &lineNum, FileState & file);
 };
+
+// unimplemented 
 struct LIF {
     bool operator()(const std::string &line, AssemblingStatus &state, 
         std::size_t &lineNum, FileState & file);

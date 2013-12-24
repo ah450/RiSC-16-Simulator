@@ -15,7 +15,7 @@ bool ass::internal::JMPF::operator()(const std::string &line, AssemblingStatus &
             i.data |= rs << 10;
 
             if(std::isdigit(std::string(result[3])[0])) {
-                i.data |= convertNumber(result[3]) & 0x3FF; // 10 bits
+                i.data |= ( (convertNumber(result[3]) & 0x3FF ) - (i.pc + 1) ) & 0x03FF; // 10 bits
             }else {
                 resolveLabel(result[3], state, file, lineNum, i);
             }
