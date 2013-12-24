@@ -1,7 +1,10 @@
 #pragma once
 #include "asm/internal/sym.hpp"
 #include <functional>
+#include <cstdint>
 #include <memory>
+#include <string>
+
 
 namespace ass { namespace internal {
 
@@ -16,15 +19,13 @@ struct SymReference {
     }
     
 };
+}}
+
 namespace std {
     // std::hash overload for ass::internal::SymReference
-    template<>
-    struct hash<ass::internal::SymReference S> {
-    public:
-        std::size_t operator()(S const& s) const {
-            return std::hash<std::hash<std::string>()(s.ref->name);
-        }
-    };
+   template <> struct hash<ass::internal::SymReference> {
+    size_t operator()(const ass::internal::SymReference & ref) const {
+      return hash<std::string>()(ref.ref->name());
+    }
+  };
 } 
-
-}}

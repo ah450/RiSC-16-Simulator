@@ -5,7 +5,7 @@
 #include <map>
 #include <set>
 
-namespace ass {internal {
+namespace ass {namespace internal {
 namespace bfs = boost::filesystem;
 
 struct FileState {

@@ -1,17 +1,16 @@
 #include "asm/internal/internal.hpp"
-
-using namespace ass;
-using namespace ass::internal;
+#include "asm/assembler.hpp"
 
 
-bool ass::assemble(const std::vector<bfs::path> &sources, const bfs::path &out, ILogger *l){
 
-     ifvector_t files;
+bool ass::assemble(const std::vector<boost::filesystem::path> &sources, const boost::filesystem::path &out, std::shared_ptr<ILogger> l){
 
-    for(const bfs::path& p : sources) {
-        if(bfs::is_regular_file(p)) {
-             files.emplace_back(std::make_pair(std::unique_ptr<bfs::ifstream>(new bfs::ifstream(p)), p));
-        }else if (bfs::is_directory(p)) {
+     ass::internal::ifvector_t files;
+  
+    for(auto & p : sources) {
+        if(boost::filesystem::is_regular_file(p)) {
+             files.emplace_back(std::make_pair(std::unique_ptr<boost::filesystem::ifstream>(new boost::filesystem::ifstream(p)), p));
+        }else if (boost::filesystem::is_directory(p)) {
             (*l) << "Warning : directory path passed to ass::assemble";
             //TODO: implement recursive directory iteration.
         }else {
@@ -19,9 +18,8 @@ bool ass::assemble(const std::vector<bfs::path> &sources, const bfs::path &out, 
         }
     }
 
-    AssemblingStatus state(l);
-    setOrigin(files, state);
-    return !state.error;
+    ass::internal::AssemblingStatus state(l);
+    return state.ok();
 
 }
 

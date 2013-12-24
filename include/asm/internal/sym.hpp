@@ -21,12 +21,12 @@ class Sym : std::enable_shared_from_this<Sym>{
     SymType type_;
     const std::string name_;
     bfs::path file_;
-    static const bfs::path GLOBAL_FILE("GLOBAL");
+    static const bfs::path GLOBAL_FILE;
 public:
     /**
      * @brief Creates an undefined label i.e forward declaration.
      */
-    Sym(cosnt std::string & name, bool global);
+    Sym(const std::string & name, bool global);
 
 
     /**
@@ -55,7 +55,7 @@ public:
     const std::string & name() const {return name_;}
     bool global() const {return global_;}
     const bfs::path & path() const {return file_;}
-    const addr_t & value(){return value_;}
+    const addr_t & value(){return address_;}
     /**
      * @throws SymException if already defined
      * @throws SymException if it is a global sym
