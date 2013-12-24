@@ -18,8 +18,14 @@ void inst_buffer::set_i_cache
     this->instruction_cache = instruction_cache;
 }
 
+void inst_buffer::flush(uint16_t address){
+    entries.popAll();
+    current_address = address;
+}
+
 void inst_buffer::tick(tomasulo &t){
     //fetch new instruction
+    //delay here ?
     if(entries.size() < number_of_entries){
         entries.push_back(inst_buffer_row{
             instruction_cache.get_data(current_address)
