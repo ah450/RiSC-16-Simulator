@@ -1,0 +1,12 @@
+before_install:
+    - sudo add-apt-repository --yes ppa:boost-latest/ppa
+    - sudo add-apt-repository --yes ppa:ubuntu-toolchain-r/test
+    - sudo apt-get update -qq
+    - sudo apt-get -qq install gcc-4.8 g++-4.8 libboost1.54-all-dev
+
+language: cpp
+comipler: gcc
+
+script:
+    - scons
+    - ./RiSC-16-dbg

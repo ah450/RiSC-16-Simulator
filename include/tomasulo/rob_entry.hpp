@@ -1,6 +1,6 @@
 #ifndef ROB_ENTRY_HPP
 #define ROB_ENTRY_HPP
-
+#include <cstdint>
 struct ROB_entry {
      unsigned short id;
      std::uint16_t dest;
