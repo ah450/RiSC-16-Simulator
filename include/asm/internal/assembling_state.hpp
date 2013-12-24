@@ -42,6 +42,7 @@ public:
     AssemblingStatus & operator<<(T&& t) {*logger << t; return *this;}
 
     void signalError() { error = true;}
+    
     std::multi_map<SymReference, std::size_t> & deps() { return dependencies;};
     std::set<SymReference> & syms() { return allReferences;}
     std::list<instructions> insts & instList() {return insts};
