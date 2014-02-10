@@ -1,0 +1,33 @@
+#Executables
+RiSC-16-dbg
+RiSC-16
+RiSC-16-profile
+
+
+# Compiled Object files
+*.slo
+*.lo
+*.o
+*.dblite
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+
+
+#Editors
+*.sublime-project
+*.sublime-workspace
+project.*
+*.orig
+# kareem edit files
+RiSC.config
+RiSC.includes
+RiSC.creator
+RiSC.creator.user
+*.autosave
